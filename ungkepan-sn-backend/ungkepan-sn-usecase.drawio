@@ -1,0 +1,119 @@
+<mxfile host="app.diagrams.net" agent="5.0" version="24.0.0">
+  <diagram id="usecase-ungkepan" name="Use Case - Pelanggan + Admin">
+    <mxGraphModel dx="1400" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="820" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ============ ACTORS ============ -->
+        <mxCell id="actor-cust" value="Pelanggan" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry height="60" width="40" x="40" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-admin" value="Admin" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry height="60" width="40" x="1300" y="380" as="geometry" />
+        </mxCell>
+
+        <!-- ============ SYSTEM BOUNDARY ============ -->
+        <mxCell id="system" value="Sistem Ungkepan SN" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;strokeColor=#999999;fillColor=none;verticalAlign=top;fontStyle=1;fontSize=14;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry height="680" width="1020" x="200" y="80" as="geometry" />
+        </mxCell>
+
+        <!-- ============ USE CASE: PELANGGAN ============ -->
+        <mxCell id="c1" value="Registrasi / Login (Email &amp; Google)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="240" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" value="Melihat Produk &amp; Kategori" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="450" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" value="Melihat Detail Produk &amp; Review" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="240" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" value="Tambah ke Keranjang" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="450" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="c5" value="Simpan ke Favorit" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="240" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="c6" value="Checkout &amp; Buat Pesanan" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="450" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="c7" value="Kirim Struk + Bukti Bayar via WA" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="240" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="c8" value="Cek Status Pesanan" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="450" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="c9" value="Konfirmasi Pesanan Diterima" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="240" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="c10" value="Kelola Profil, Alamat &amp; Kata Sandi" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="450" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="c11" value="Beri Review &amp; Rating" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="240" y="640" as="geometry" />
+        </mxCell>
+
+        <!-- ============ USE CASE: ADMIN ============ -->
+        <mxCell id="a1" value="Login Admin" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="760" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" value="Lihat Dashboard (statistik)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="960" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" value="Kelola Produk &amp; Stok" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="760" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" value="Kelola Kategori" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="960" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" value="Verifikasi Pembayaran" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="760" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="a6" value="Kelola Pesanan (ubah status)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="960" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="a7" value="Kelola Metode Bayar &amp; QRIS" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="760" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="a8" value="Kelola Review (moderasi)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="960" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="a9" value="Kelola Konten Situs" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="760" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="a10" value="Upload Gambar" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry height="44" width="190" x="960" y="540" as="geometry" />
+        </mxCell>
+
+        <!-- ============ ASSOCIATION: PELANGGAN ============ -->
+        <mxCell id="ac1" style="html=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="actor-cust" target="c1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ac2" style="html=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="actor-cust" target="c2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ac3" style="html=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="actor-cust" target="c3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ac4" style="html=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="actor-cust" target="c4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ac5" style="html=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="actor-cust" target="c5"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ac6" style="html=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="actor-cust" target="c6"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ac7" style="html=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="actor-cust" target="c7"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ac8" style="html=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="actor-cust" target="c8"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ac9" style="html=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="actor-cust" target="c9"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ac10" style="html=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="actor-cust" target="c10"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ac11" style="html=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="actor-cust" target="c11"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ============ ASSOCIATION: ADMIN ============ -->
+        <mxCell id="aa1" style="html=1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="actor-admin" target="a1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="aa2" style="html=1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="actor-admin" target="a2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="aa3" style="html=1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="actor-admin" target="a3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="aa4" style="html=1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="actor-admin" target="a4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="aa5" style="html=1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="actor-admin" target="a5"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="aa6" style="html=1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="actor-admin" target="a6"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="aa7" style="html=1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="actor-admin" target="a7"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="aa8" style="html=1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="actor-admin" target="a8"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="aa9" style="html=1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="actor-admin" target="a9"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="aa10" style="html=1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="actor-admin" target="a10"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ============ INCLUDE RELATIONS ============ -->
+        <mxCell id="inc1" value="&lt;&lt;include&gt;&gt;" style="html=1;dashed=1;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="c6" target="c1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="inc2" value="&lt;&lt;include&gt;&gt;" style="html=1;dashed=1;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="c9" target="c1"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

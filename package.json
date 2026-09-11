@@ -1,0 +1,12 @@
+{
+  "name": "ungkepan-sn-monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n back,front -c blue,green \"cd ungkepan-sn-backend && php artisan serve\" \"cd ungkepan-sn-frontend && npm run dev\"",
+    "dev:backend": "cd ungkepan-sn-backend && php artisan serve",
+    "dev:frontend": "cd ungkepan-sn-frontend && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
