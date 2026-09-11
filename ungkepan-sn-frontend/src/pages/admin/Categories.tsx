@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Plus, Pencil, Trash, Image, UploadSimple, Cookie, Coffee, BowlFood, Cake, ForkKnife, Snowflake, TeaBag, Hamburger, Fish, Bread, IceCream, Drop } from '@phosphor-icons/react'
 import { adminGetCategories, adminCreateCategory, adminUpdateCategory, adminDeleteCategory, resolveImage, API_BASE } from '../../api/client'
 import Toast from '../../components/ui/Toast'
-import ConfirmModal from '../../components/ui/ConfirmModal'
+import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal'
+import SuccessModal from '../../components/ui/SuccessModal'
 
 interface Category {
   id: number
@@ -33,6 +34,7 @@ export default function AdminCategories() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' })
+  const [success, setSuccess] = useState<string | null>(null)
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false)
@@ -104,10 +106,10 @@ export default function AdminCategories() {
       const slugValue = slug.trim() || autoSlug(trimmedName)
       if (modalMode === 'add') {
         await adminCreateCategory(trimmedName, image, icon, imageFile)
-        setToast({ visible: true, message: 'Kategori berhasil ditambahkan', type: 'success' })
+        setSuccess('Kategori berhasil ditambahkan')
       } else if (editingId) {
         await adminUpdateCategory(editingId, trimmedName, icon, image, imageFile)
-        setToast({ visible: true, message: 'Kategori berhasil diubah', type: 'success' })
+        setSuccess('Kategori berhasil diubah')
       }
       resetModal()
       loadCategories()
@@ -125,7 +127,7 @@ export default function AdminCategories() {
     try {
       await adminDeleteCategory(confirmDelete.id); loadCategories()
       setConfirmDelete(null)
-      setToast({ visible: true, message: 'Kategori berhasil dihapus', type: 'success' })
+      setSuccess('Kategori berhasil dihapus')
     } catch (err: any) {
       setConfirmDelete(null)
       setToast({ visible: true, message: err.message || 'Gagal menghapus kategori', type: 'error' })
@@ -201,7 +203,7 @@ export default function AdminCategories() {
       <Toast visible={toast.visible} message={toast.message} type={toast.type}
         onClose={() => setToast({ ...toast, visible: false })} />
 
-      <ConfirmModal
+      <ConfirmDeleteModal
         open={confirmDelete !== null}
         title="Hapus Kategori"
         message={`Yakin ingin menghapus kategori "${confirmDelete?.name}"?`}
@@ -209,6 +211,12 @@ export default function AdminCategories() {
         cancelLabel="Batal"
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmDelete(null)}
+      />
+
+      <SuccessModal
+        open={success !== null}
+        message={success || ''}
+        onConfirm={() => setSuccess(null)}
       />
 
       {/* Header */}

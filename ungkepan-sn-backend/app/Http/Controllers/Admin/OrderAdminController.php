@@ -52,7 +52,7 @@ class OrderAdminController extends Controller
             return response()->json(['error' => 'ID dan status required'], 400);
         }
 
-        if (! in_array($status, ['pending', 'processed', 'shipped', 'completed'])) {
+        if (! in_array($status, ['pending', 'processed', 'completed'])) {
             return response()->json(['error' => 'Status tidak valid'], 400);
         }
 

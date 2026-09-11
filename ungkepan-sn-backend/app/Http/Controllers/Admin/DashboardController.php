@@ -18,7 +18,6 @@ class DashboardController extends Controller
 
         $pendingOrders = DB::table('orders')->where('status', 'pending')->count();
         $processedOrders = DB::table('orders')->where('status', 'processed')->count();
-        $shippedOrders = DB::table('orders')->where('status', 'shipped')->count();
         $completedOrders = DB::table('orders')->where('status', 'completed')->count();
 
         $recentOrders = DB::table('orders')
@@ -73,7 +72,6 @@ class DashboardController extends Controller
             'total_revenue' => (int) $totalRevenue,
             'pending_orders' => (int) $pendingOrders,
             'processed_orders' => (int) $processedOrders,
-            'shipped_orders' => (int) $shippedOrders,
             'completed_orders' => (int) $completedOrders,
             'recent_orders' => $recentOrders,
             'low_stock' => $lowStock,

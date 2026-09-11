@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Plus, Pencil, Trash, Image, Spinner, CaretDown, CaretRight, Bank, DeviceMobile, CurrencyDollar, CreditCard, Ticket, X } from '@phosphor-icons/react'
 import { adminGetPaymentMethods, adminCreatePaymentMethod, adminUpdatePaymentMethod, adminDeletePaymentMethod, adminUploadQris, adminGetPromos, adminCreatePromo, adminUpdatePromo, adminDeletePromo } from '../../api/client'
-import ConfirmModal from '../../components/ui/ConfirmModal'
+import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal'
+import SuccessModal from '../../components/ui/SuccessModal'
 import type { PaymentMethod, Promo } from '../../api/client'
 
 const categoryConfig: Record<string, { label: string; icon: React.ElementType; desc: string; methods: string[] }> = {
@@ -20,6 +21,7 @@ export default function PaymentSettings() {
   const [uploadingQris, setUploadingQris] = useState<number | null>(null)
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<{ id: number; label: string } | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
   const qrisUploadRef = useRef<HTMLInputElement>(null)
   const logoFileRef = useRef<HTMLInputElement>(null)
@@ -76,8 +78,10 @@ export default function PaymentSettings() {
       const payload = { ...form, logo: logoRef.current || form.logo }
       if (editingId) {
         await adminUpdatePaymentMethod({ id: editingId, ...payload })
+        setSuccess('Metode pembayaran berhasil diubah')
       } else {
         await adminCreatePaymentMethod(payload)
+        setSuccess('Metode pembayaran berhasil ditambahkan')
       }
       resetForm()
       fetchMethods()
@@ -114,6 +118,7 @@ export default function PaymentSettings() {
     if (!confirmDelete) return
     try {
       await adminDeletePaymentMethod(confirmDelete.id); fetchMethods(); setConfirmDelete(null)
+      setSuccess('Metode pembayaran berhasil dihapus')
     } catch (err: any) {
       setConfirmDelete(null); setError(err.message)
     }
@@ -126,6 +131,7 @@ export default function PaymentSettings() {
     try {
       await adminUploadQris(id, file)
       fetchMethods()
+      setSuccess('Gambar QRIS berhasil diperbarui')
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -188,6 +194,7 @@ export default function PaymentSettings() {
       await adminDeletePromo(confirmPromoDelete.id)
       setConfirmPromoDelete(null)
       fetchPromos()
+      setSuccess('Kode promo berhasil dihapus')
     } catch (err: any) {
       setConfirmPromoDelete(null)
       setPromoError(err.message)
@@ -208,8 +215,10 @@ export default function PaymentSettings() {
       }
       if (editingPromoId) {
         await adminUpdatePromo({ id: editingPromoId, ...payload })
+        setSuccess('Kode promo berhasil diubah')
       } else {
         await adminCreatePromo(payload)
+        setSuccess('Kode promo berhasil ditambahkan')
       }
       resetPromoForm()
       fetchPromos()
@@ -238,7 +247,7 @@ export default function PaymentSettings() {
         </button>
       </div>
 
-      <ConfirmModal
+      <ConfirmDeleteModal
         open={confirmDelete !== null}
         title="Hapus Metode Pembayaran"
         message={`Yakin ingin menghapus metode "${confirmDelete?.label}"?`}
@@ -248,7 +257,7 @@ export default function PaymentSettings() {
         onCancel={() => setConfirmDelete(null)}
       />
 
-      <ConfirmModal
+      <ConfirmDeleteModal
         open={confirmPromoDelete !== null}
         title="Hapus Kode Promo"
         message={`Yakin ingin menghapus kode promo "${confirmPromoDelete?.code}"?`}
@@ -256,6 +265,12 @@ export default function PaymentSettings() {
         cancelLabel="Batal"
         onConfirm={handlePromoConfirmDelete}
         onCancel={() => setConfirmPromoDelete(null)}
+      />
+
+      <SuccessModal
+        open={success !== null}
+        message={success || ''}
+        onConfirm={() => setSuccess(null)}
       />
 
       {error && (

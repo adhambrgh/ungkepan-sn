@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Star, Trash, CheckCircle, XCircle, Funnel } from '@phosphor-icons/react'
 import { adminGetReviews, adminToggleReview, adminDeleteReview, getCategories } from '../../api/client'
-import ConfirmModal from '../../components/ui/ConfirmModal'
+import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal'
+import SuccessModal from '../../components/ui/SuccessModal'
 
 interface Review {
   id: number
@@ -30,6 +31,7 @@ export default function AdminReviews() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [filter, setFilter] = useState('all')
   const [catFilter, setCatFilter] = useState('')
 
@@ -73,6 +75,7 @@ export default function AdminReviews() {
     try {
       await adminToggleReview(id, current === 0)
       fetchReviews()
+      setSuccess(current === 0 ? 'Review telah disetujui' : 'Review telah ditolak')
     } catch (err: any) {
       setError(err.message)
     }
@@ -86,6 +89,7 @@ export default function AdminReviews() {
     if (confirmDelete === null) return
     try {
       await adminDeleteReview(confirmDelete); fetchReviews(); setConfirmDelete(null)
+      setSuccess('Review berhasil dihapus')
     } catch (err: any) {
       setConfirmDelete(null); setError(err.message)
     }
@@ -129,7 +133,7 @@ export default function AdminReviews() {
         )}
       </div>
 
-      <ConfirmModal
+      <ConfirmDeleteModal
         open={confirmDelete !== null}
         title="Hapus Review"
         message="Yakin ingin menghapus review ini?"
@@ -137,6 +141,12 @@ export default function AdminReviews() {
         cancelLabel="Batal"
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmDelete(null)}
+      />
+
+      <SuccessModal
+        open={success !== null}
+        message={success || ''}
+        onConfirm={() => setSuccess(null)}
       />
 
       {error && (

@@ -51,7 +51,7 @@ class OrderController extends Controller
         }
 
         $isPickup = $order->shipping_method === 'ambil';
-        $canConfirm = $order->status === 'shipped' || ($isPickup && $order->status === 'processed');
+        $canConfirm = $order->status === 'processed';
 
         if (! $canConfirm) {
             return response()->json(['error' => 'Pesanan belum bisa dikonfirmasi diterima'], 422);
@@ -247,7 +247,7 @@ class OrderController extends Controller
                 $data['fraud_status']
             );
 
-            if ($newStatus === 'cancelled' && in_array($order->status, ['processed', 'shipped', 'completed'])) {
+            if ($newStatus === 'cancelled' && in_array($order->status, ['processed', 'completed'])) {
                 return response()->json(['status' => 'ignored']);
             }
 

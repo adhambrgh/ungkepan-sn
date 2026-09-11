@@ -8,7 +8,6 @@ interface DashboardData {
   total_revenue: number
   pending_orders: number
   processed_orders: number
-  shipped_orders: number
   completed_orders: number
   recent_orders: { order_code: string; customer_name: string; total: number; status: string; created_at: string }[]
   low_stock: { name: string; stock: number }[]
@@ -21,7 +20,7 @@ const DONUT_COLORS = ['#F5730C', '#B45309', '#F59E0B', '#EA580C', '#D97706']
 const statusMeta: Record<string, { label: string; badge: string }> = {
   pending: { label: 'Pending', badge: ' text-amber-600' },
   processed: { label: 'Diproses', badge: 'text-blue-600' },
-  shipped: { label: 'Dikirim', badge: 'text-[#F5730C]' },
+  shipped: { label: 'Diproses', badge: 'text-blue-600' },
   completed: { label: 'Selesai', badge: 'text-green-600' },
 }
 

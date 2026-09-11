@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Phone, MapPin, Truck, CreditCard, Trash } from '@phosphor-icons/react'
+import { Phone, MapPin, Truck, CreditCard, Trash, MagnifyingGlass } from '@phosphor-icons/react'
 import { adminGetOrders, adminUpdateOrderStatus, adminDeleteOrder } from '../../api/client'
-import ConfirmModal from '../../components/ui/ConfirmModal'
+import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal'
+import SuccessModal from '../../components/ui/SuccessModal'
 
 interface OrderItem {
   product_name: string
@@ -28,30 +29,31 @@ interface Order {
 const statusLabels: Record<string, string> = {
   pending: 'Pending',
   processed: 'Diproses',
-  shipped: 'Dikirim',
+  shipped: 'Diproses',
   completed: 'Selesai',
 }
 
 const statusColors: Record<string, string> = {
   pending: 'text-amber-600',
   processed: 'bg-blue-50 text-blue-600',
-  shipped: 'bg-brand-50 text-brand-600',
+  shipped: 'bg-blue-50 text-blue-600',
   completed: 'bg-green-50 text-green-600',
 }
 
 const nextStatus: Record<string, string> = {
   pending: 'processed',
-  processed: 'shipped',
-  shipped: 'completed',
+  processed: 'completed',
   completed: '',
 }
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([])
   const [filter, setFilter] = useState('')
+  const [search, setSearch] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [confirmDelete, setConfirmDelete] = useState<{ id: number; code: string } | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   const fetchOrders = () => {
     setLoading(true)
@@ -67,6 +69,7 @@ export default function AdminOrders() {
     try {
       await adminUpdateOrderStatus(id, status)
       fetchOrders()
+      setSuccess(`Status pesanan diubah menjadi "${statusLabels[status]}"`)
     } catch (err: any) {
       setError(err.message)
     }
@@ -80,20 +83,45 @@ export default function AdminOrders() {
     if (!confirmDelete) return
     try {
       await adminDeleteOrder(confirmDelete.id); fetchOrders(); setConfirmDelete(null)
+      setSuccess('Pesanan berhasil dihapus')
     } catch (err: any) {
       setConfirmDelete(null); setError(err.message)
     }
   }
+
+  const q = search.trim().toLowerCase()
+  const filtered = q
+    ? orders.filter(
+        (o) =>
+          o.customer_name.toLowerCase().includes(q) ||
+          o.order_code.toLowerCase().includes(q) ||
+          o.phone.toLowerCase().includes(q) ||
+          o.items.some((i) => i.product_name.toLowerCase().includes(q)),
+      )
+    : orders
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-zinc-800">Pesanan</h1>
-          <p className="text-zinc-500">{orders.length} pesanan</p>
+          <p className="text-zinc-500">{filtered.length} pesanan</p>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          {['', 'pending', 'processed', 'shipped', 'completed'].map((s) => (
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative">
+            <MagnifyingGlass
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+              size={18}
+            />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari nama, kode, telepon..."
+              className="w-full sm:w-64 pl-10 pr-4 py-2.5 text-sm border border-zinc-200 rounded-[8px] bg-white focus:outline-none focus:ring-2 focus:ring-[#EA580C]/30 focus:border-[#EA580C] transition-colors"
+            />
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {['', 'pending', 'processed', 'completed'].map((s) => (
             <button
               key={s}
               onClick={() => setFilter(s)}
@@ -106,10 +134,11 @@ export default function AdminOrders() {
               {s ? statusLabels[s] : 'Semua'}
             </button>
           ))}
+          </div>
         </div>
       </div>
 
-      <ConfirmModal
+      <ConfirmDeleteModal
         open={confirmDelete !== null}
         title="Hapus Pesanan"
         message={`Yakin ingin menghapus pesanan "${confirmDelete?.code}"?`}
@@ -119,17 +148,23 @@ export default function AdminOrders() {
         onCancel={() => setConfirmDelete(null)}
       />
 
+      <SuccessModal
+        open={success !== null}
+        message={success || ''}
+        onConfirm={() => setSuccess(null)}
+      />
+
       {error && (
         <div className="p-4 text-red-600 bg-red-50 rounded-xl">{error}</div>
       )}
 
       {loading ? (
         <div className="flex items-center justify-center min-h-[40vh] text-zinc-400">Memuat...</div>
-      ) : orders.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-zinc-400">Belum ada pesanan</div>
       ) : (
         <div className="space-y-4">
-          {orders.map((o) => (
+          {filtered.map((o) => (
             <div key={o.order_code} className="bg-white rounded-2xl border border-zinc-100 p-4 md:p-6">
               <div className="flex items-start justify-between mb-3">
                 <div>

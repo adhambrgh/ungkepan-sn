@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Check } from '@phosphor-icons/react'
+import { Check, MagnifyingGlass } from '@phosphor-icons/react'
 import { useAuthStore } from '../store/authStore'
 import { useCartStore } from '../store/cartStore'
 import { getMyOrders, confirmOrderReceived, getProducts } from '../api/client'
@@ -10,12 +10,13 @@ import type { Order, CartItem, Product } from '../types'
 const statusConfig: Record<string, { label: string; color: string }> = {
   pending: { label: 'Menunggu Konfirmasi', color: 'text-amber-500' },
   processed: { label: 'Diproses', color: 'text-blue-500' },
-  shipped: { label: 'Dikirim', color: 'text-brand-500' },
+  shipped: { label: 'Diproses', color: 'text-blue-500' },
   completed: { label: 'Selesai', color: 'text-green-500' },
 }
 
 const statusFilters = [
   { value: '', label: 'Semua' },
+  { value: 'pending', label: 'Pending' },
   { value: 'active', label: 'Diproses' },
   { value: 'completed', label: 'Selesai' },
 ]
@@ -82,6 +83,7 @@ export default function Orders() {
   const localOrders = useCartStore((s) => s.orders)
   const [orders, setOrders] = useState<Order[]>([])
   const [filter, setFilter] = useState('')
+  const [search, setSearch] = useState('')
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const [confirmMsg, setConfirmMsg] = useState('')
 
@@ -130,12 +132,23 @@ export default function Orders() {
     }
   }, [authToken, localOrders])
 
-  const filtered =
-    filter === 'active'
-      ? orders.filter((o) => o.status !== 'completed')
-      : filter === 'completed'
-        ? orders.filter((o) => o.status === 'completed')
-        : orders
+  const q = search.trim().toLowerCase()
+  const filteredBase =
+    filter === 'pending'
+      ? orders.filter((o) => o.status === 'pending')
+      : filter === 'active'
+        ? orders.filter((o) => o.status === 'processed' || o.status === 'shipped')
+        : filter === 'completed'
+          ? orders.filter((o) => o.status === 'completed')
+          : orders
+
+  const filtered = q
+    ? filteredBase.filter(
+        (o) =>
+          o.id.toLowerCase().includes(q) ||
+          o.items.some((i) => i.product.name.toLowerCase().includes(q)),
+      )
+    : filteredBase
 
   const handleConfirmReceived = async (order: Order) => {
     if (!authToken) return
@@ -165,21 +178,34 @@ export default function Orders() {
       )}
 
       {orders.length > 0 && (
-        <div className="flex gap-2 py-2.5 flex-wrap mb-6">
-          
-          {statusFilters.map((s) => (
-            <button
-              key={s.value}
-              onClick={() => setFilter(s.value)}
-              className={`px-5 py-2.5 text-sm font-semibold rounded-[8px] transition-colors ${
-                filter === s.value
-                  ? 'bg-[#EA580C] text-white'
-                  : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
-              }`}
-            >
-              {s.label}
-            </button>
-          ))}
+        <div className="flex flex-col md:flex-row md:items-center gap-3 py-2.5 mb-6">
+          <div className="flex gap-2 flex-wrap">
+            {statusFilters.map((s) => (
+              <button
+                key={s.value}
+                onClick={() => setFilter(s.value)}
+                className={`px-5 py-2.5 text-sm font-semibold rounded-[8px] transition-colors ${
+                  filter === s.value
+                    ? 'bg-[#EA580C] text-white'
+                    : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+          <div className="relative md:ml-auto">
+            <MagnifyingGlass
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+              size={18}
+            />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari pesanan..."
+              className="w-full md:w-56 pl-10 pr-4 py-2.5 text-sm border border-zinc-200 rounded-[8px] bg-white focus:outline-none focus:ring-2 focus:ring-[#EA580C]/30 focus:border-[#EA580C] transition-colors"
+            />
+          </div>
         </div>
       )}
 
@@ -208,15 +234,21 @@ export default function Orders() {
       )}
 
       {filtered.length === 0 ? (
-        <div className="text-center py-16">
-          <svg className="w-16 h-16 mx-auto text-zinc-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-          <p className="text-xl text-zinc-400 mb-2">Belum ada pesanan</p>
-          <p className="text-zinc-400 mb-6">Ayo belanja dulu!</p>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="relative w-48 h-48 mb-8">
+            <img
+              src="/keranjangkosong.png"
+              alt="Belum ada pesanan"
+              className="w-full h-full object-contain drop-shadow-lg"
+            />
+          </div>
+          <h2 className="text-2xl font-bold text-zinc-800 mb-3">Belum Ada Pesanan</h2>
+          <p className="text-zinc-500 max-w-md mx-auto mb-8 leading-relaxed">
+            Ayo belanja dulu! Jelajahi koleksi masakan terbaik kami yang menggugah selera.
+          </p>
           <Link
             to="/products"
-            className="inline-flex items-center gap-2 px-8 py-4 text-base font-bold text-white bg-brand-500 rounded-[8px] hover:bg-brand-600 transition-colors"
+            className="inline-flex items-center gap-2 px-8 py-2.5 text-base font-bold text-white bg-[#EA580C] hover:bg-[#d94e0b] rounded-[8px] transition-colors"
           >
             Mulai Belanja
           </Link>

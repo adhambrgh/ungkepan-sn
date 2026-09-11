@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom'
 import { ArrowLeft, FloppyDisk, Image, UploadSimple, Plus, Trash } from '@phosphor-icons/react'
 import { adminCreateProduct, adminUpdateProduct, adminGetProducts, getCategories, resolveImage } from '../../api/client'
 import Toast from '../../components/ui/Toast'
+import SuccessModal from '../../components/ui/SuccessModal'
 
 interface Category {
   id: number | string
@@ -37,6 +38,7 @@ export default function ProductForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' })
+  const [success, setSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     getCategories().then(setCategories).catch(() => {})
@@ -100,12 +102,7 @@ export default function ProductForm() {
         await adminCreateProduct(payload)
       }
 
-      setToast({
-        visible: true,
-        message: isEdit ? 'Perubahan produk berhasil disimpan!' : 'Produk berhasil ditambahkan!',
-        type: 'success',
-      })
-      setTimeout(() => navigate('/admin/dashboard/products'), 2000)
+      setSuccess(isEdit ? 'Perubahan produk berhasil disimpan!' : 'Produk berhasil ditambahkan!')
     } catch (err: any) {
       setError(err.message || 'Gagal menyimpan produk')
       setToast({ visible: true, message: err.message || 'Gagal menyimpan produk', type: 'error' })
@@ -368,6 +365,12 @@ export default function ProductForm() {
         message={toast.message}
         type={toast.type}
         onClose={() => setToast({ ...toast, visible: false })}
+      />
+
+      <SuccessModal
+        open={success !== null}
+        message={success || ''}
+        onConfirm={() => navigate('/admin/dashboard/products')}
       />
     </div>
   )

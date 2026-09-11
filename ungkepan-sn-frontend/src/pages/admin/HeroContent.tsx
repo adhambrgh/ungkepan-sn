@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, FloppyDisk, Image, Trash, Plus, CaretUp, CaretDown, UploadSimple, Heart, ShieldCheck, Package, Clock, Leaf, ShoppingBag, Cookie, Coffee, BowlFood, Cake, Storefront } from '@phosphor-icons/react'
+import { FloppyDisk, Plus, CaretUp, CaretDown, Trash, UploadSimple } from '@phosphor-icons/react'
 import { adminUpdateSiteContent, getSiteContent, adminUploadFile, resolveImage } from '../../api/client'
 import Toast from '../../components/ui/Toast'
+import SuccessModal from '../../components/ui/SuccessModal'
 
 const DEFAULT_VALUES = [
   { icon: 'Package', title: 'Bahan Segar', desc: 'Bahan pilihan kualitas terbaik, langsung dari pasar tradisional' },
@@ -23,6 +23,7 @@ export default function HeroContent() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' })
+  const [success, setSuccess] = useState<string | null>(null)
   const [newImageUrl, setNewImageUrl] = useState('')
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -94,7 +95,7 @@ export default function HeroContent() {
     setSaving(true)
     try {
       await adminUpdateSiteContent('hero', content)
-      setToast({ visible: true, message: 'Konten hero berhasil disimpan!', type: 'success' })
+      setSuccess('Konten hero berhasil disimpan!')
     } catch (err: any) {
       setToast({ visible: true, message: err.message || 'Gagal menyimpan', type: 'error' })
     } finally {
@@ -111,7 +112,7 @@ export default function HeroContent() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       <Toast
         visible={toast.visible}
         message={toast.message}
@@ -119,12 +120,11 @@ export default function HeroContent() {
         onClose={() => setToast({ ...toast, visible: false })}
       />
 
-      <Link
-        to="/admin/dashboard"
-        className="inline-flex items-center gap-2 text-zinc-500 hover:text-brand-600 font-medium transition-colors"
-      >
-        <ArrowLeft size={18} /> Kembali
-      </Link>
+      <SuccessModal
+        open={success !== null}
+        message={success || ''}
+        onConfirm={() => setSuccess(null)}
+      />
 
       <h1 className="text-2xl md:text-3xl font-bold text-zinc-800">Konten Hero</h1>
 

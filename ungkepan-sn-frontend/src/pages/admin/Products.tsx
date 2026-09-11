@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Star } from '@phosphor-icons/react'
 import { adminGetProducts, adminDeleteProduct, getCategories, adminToggleFeatured, resolveImage } from '../../api/client'
-import ConfirmModal from '../../components/ui/ConfirmModal'
+import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal'
+import SuccessModal from '../../components/ui/SuccessModal'
 
 interface Product {
   id: number
@@ -30,6 +31,7 @@ export default function AdminProducts() {
   const [query, setQuery] = useState('')
   const [error, setError] = useState('')
   const [confirmDelete, setConfirmDelete] = useState<{ id: number; name: string } | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   const fetchProducts = () => {
@@ -58,6 +60,7 @@ export default function AdminProducts() {
     try {
       await adminToggleFeatured(id, current === 0)
       fetchProducts()
+      setSuccess(current === 0 ? 'Produk ditambahkan ke favorit' : 'Produk dihapus dari favorit')
     } catch (err: any) {
       setError(err.message)
     }
@@ -71,6 +74,7 @@ export default function AdminProducts() {
     if (!confirmDelete) return
     try {
       await adminDeleteProduct(confirmDelete.id); fetchProducts(); setConfirmDelete(null)
+      setSuccess('Produk berhasil dihapus')
     } catch (err: any) {
       setConfirmDelete(null); setError(err.message)
     }
@@ -92,7 +96,7 @@ export default function AdminProducts() {
         </Link>
       </div>
 
-      <ConfirmModal
+      <ConfirmDeleteModal
         open={confirmDelete !== null}
         title="Hapus Produk"
         message={`Yakin ingin menghapus produk "${confirmDelete?.name}"?`}
@@ -100,6 +104,12 @@ export default function AdminProducts() {
         cancelLabel="Batal"
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmDelete(null)}
+      />
+
+      <SuccessModal
+        open={success !== null}
+        message={success || ''}
+        onConfirm={() => setSuccess(null)}
       />
 
       {error && (

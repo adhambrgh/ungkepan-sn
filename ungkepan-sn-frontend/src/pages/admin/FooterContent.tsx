@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, FloppyDisk } from '@phosphor-icons/react'
 import { adminUpdateSiteContent, getSiteContent } from '../../api/client'
 import Toast from '../../components/ui/Toast'
+import SuccessModal from '../../components/ui/SuccessModal'
 
 export default function FooterContent() {
   const [content, setContent] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' })
+  const [success, setSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     getSiteContent('footer').then((data) => {
@@ -25,7 +27,7 @@ export default function FooterContent() {
     setSaving(true)
     try {
       await adminUpdateSiteContent('footer', content)
-      setToast({ visible: true, message: 'Footer berhasil disimpan!', type: 'success' })
+      setSuccess('Footer berhasil disimpan!')
     } catch (err: any) {
       setToast({ visible: true, message: err.message || 'Gagal menyimpan', type: 'error' })
     } finally {
@@ -48,6 +50,12 @@ export default function FooterContent() {
         message={toast.message}
         type={toast.type}
         onClose={() => setToast({ ...toast, visible: false })}
+      />
+
+      <SuccessModal
+        open={success !== null}
+        message={success || ''}
+        onConfirm={() => setSuccess(null)}
       />
 
       <Link

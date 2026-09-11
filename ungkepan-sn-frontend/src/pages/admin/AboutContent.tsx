@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { FloppyDisk, Image as ImageIcon, UploadSimple } from '@phosphor-icons/react'
 import { adminUpdateSiteContent, adminUploadFile, getSiteContent, resolveImage } from '../../api/client'
 import Toast from '../../components/ui/Toast'
+import SuccessModal from '../../components/ui/SuccessModal'
 
 const inputCls =
   'w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm outline-none focus:border-brand-500 transition-colors'
@@ -133,6 +134,7 @@ export default function AboutContent() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' })
+  const [success, setSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     getSiteContent('about').then((data) => {
@@ -224,7 +226,7 @@ export default function AboutContent() {
     setSaving(true)
     try {
       await adminUpdateSiteContent('about', content)
-      setToast({ visible: true, message: 'Konten Tentang Kami berhasil disimpan!', type: 'success' })
+      setSuccess('Konten Tentang Kami berhasil disimpan!')
     } catch (err: any) {
       setToast({ visible: true, message: err.message || 'Gagal menyimpan', type: 'error' })
     } finally {
@@ -247,6 +249,12 @@ export default function AboutContent() {
         message={toast.message}
         type={toast.type}
         onClose={() => setToast({ ...toast, visible: false })}
+      />
+
+      <SuccessModal
+        open={success !== null}
+        message={success || ''}
+        onConfirm={() => setSuccess(null)}
       />
 
       <h1 className="text-3xl sm:text-[34px] font-extrabold tracking-tight text-zinc-800">Konten Tentang Kami</h1>

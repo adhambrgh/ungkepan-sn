@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { FloppyDisk, MapPin } from '@phosphor-icons/react'
 import { adminUpdateSiteContent, getSiteContent } from '../../api/client'
 import Toast from '../../components/ui/Toast'
+import SuccessModal from '../../components/ui/SuccessModal'
 
 interface ShippingMethod {
   value: string
@@ -37,6 +38,7 @@ export default function ShippingSettings() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' })
+  const [success, setSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     Promise.all([
@@ -79,7 +81,7 @@ export default function ShippingSettings() {
     try {
       await adminUpdateSiteContent('shipping', content)
       await adminUpdateSiteContent('shipping_methods', methods)
-      setToast({ visible: true, message: 'Pengaturan ongkir berhasil disimpan!', type: 'success' })
+      setSuccess('Pengaturan ongkir berhasil disimpan!')
     } catch (err: any) {
       setToast({ visible: true, message: err.message || 'Gagal menyimpan', type: 'error' })
     } finally {
@@ -102,6 +104,12 @@ export default function ShippingSettings() {
         message={toast.message}
         type={toast.type}
         onClose={() => setToast({ ...toast, visible: false })}
+      />
+
+      <SuccessModal
+        open={success !== null}
+        message={success || ''}
+        onConfirm={() => setSuccess(null)}
       />
 
       <h1 className="text-2xl font-bold text-zinc-800">Pengaturan Ongkos Kirim</h1>
