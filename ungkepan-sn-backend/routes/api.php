@@ -10,6 +10,7 @@ use App\Http\Controllers\StockStreamController;
 use App\Http\Controllers\SiteContentController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\CustomerAuthController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\CartController;
@@ -62,6 +63,14 @@ Route::middleware('throttle:register')->group(function () {
     Route::post('/register.php', [CustomerAuthController::class, 'register']);
 });
 
+Route::middleware('throttle:login')->group(function () {
+    Route::post('/forgot-password.php', [PasswordResetController::class, 'forgot']);
+});
+
+Route::middleware('throttle:api')->group(function () {
+    Route::post('/reset-password.php', [PasswordResetController::class, 'reset']);
+});
+
 Route::middleware(['customer.auth', 'throttle:api'])->group(function () {
     Route::get('/me.php', [CustomerAuthController::class, 'me']);
 
@@ -98,6 +107,7 @@ Route::post('/admin/login.php', [AuthController::class, 'login']);
 
 Route::middleware(['admin.auth', 'throttle:api'])->group(function () {
     Route::get('/admin/dashboard.php', [DashboardController::class, 'index']);
+    Route::get('/admin/dashboard-detail.php', [DashboardController::class, 'detail']);
 
     Route::match(['get', 'post', 'put', 'delete'], '/admin/products.php', [ProductAdminController::class, 'handle']);
     Route::match(['get', 'post', 'put', 'delete'], '/admin/categories.php', [CategoryAdminController::class, 'handle']);

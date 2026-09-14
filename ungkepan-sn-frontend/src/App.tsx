@@ -16,6 +16,8 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import AdminLogin from './pages/admin/Login'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminDashboard from './pages/admin/Dashboard'
@@ -29,6 +31,7 @@ import PaymentSettings from './pages/admin/PaymentSettings'
 import ShippingSettings from './pages/admin/ShippingSettings'
 import AdminReviews from './pages/admin/Reviews'
 import HeroContent from './pages/admin/HeroContent'
+import DashboardPrintReport from './pages/admin/DashboardPrintReport'
 import { useAuthStore } from './store/authStore'
 import { useCartStore } from './store/cartStore'
 import { useFavoritesStore } from './store/favoritesStore'
@@ -63,7 +66,12 @@ export default function App() {
     }
   }, [token, hydrateCart, hydrateFavorites, resetCart, resetFavorites])
 
-  const isBare = location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/admin/login'
+  const isBare =
+    location.pathname === '/login' ||
+    location.pathname === '/signup' ||
+    location.pathname === '/admin/login' ||
+    location.pathname === '/forgot-password' ||
+    location.pathname === '/reset-password'
   const isAdminPath = location.pathname.startsWith('/admin')
 
   if (isBare) {
@@ -71,6 +79,8 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/admin/login" element={<AdminLogin />} />
       </Routes>
     )
@@ -108,6 +118,7 @@ export default function App() {
             <Route path="shipping" element={<ShippingSettings />} />
             <Route path="reviews" element={<AdminReviews />} />
             <Route path="hero" element={<HeroContent />} />
+            <Route path="print" element={<DashboardPrintReport />} />
           </Route>
         </Routes>
       </div>

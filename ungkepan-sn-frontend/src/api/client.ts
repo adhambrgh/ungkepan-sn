@@ -562,6 +562,20 @@ export async function customerLogin(email: string, password: string) {
   })
 }
 
+export async function forgotPassword(email: string) {
+  return request<{ success: boolean; dev_reset_url?: string | null }>('/forgot-password.php', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  })
+}
+
+export async function resetPassword(email: string, token: string, password: string) {
+  return request<{ success: boolean }>('/reset-password.php', {
+    method: 'POST',
+    body: JSON.stringify({ email, token, password }),
+  })
+}
+
 export async function customerGoogleLogin(credential: string) {
   return request<CustomerAuthResponse>('/google.php', {
     method: 'POST',
@@ -646,6 +660,10 @@ export async function deleteAddress(id: number) {
 
 export async function adminGetDashboard() {
   return request<any>('/admin/dashboard.php', { headers: authHeaders() })
+}
+
+export async function adminGetDashboardDetail() {
+  return request<any>('/admin/dashboard-detail.php', { headers: authHeaders() })
 }
 
 export async function adminGetProducts() {
