@@ -1,52 +1,65 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Heart, SpinnerGap, MagnifyingGlass } from '@phosphor-icons/react'
-import { getProducts, getCategories } from '../api/client'
-import type { Product, Category } from '../types'
-import { useFavoritesStore } from '../store/favoritesStore'
-import LoginPrompt from '../components/ui/LoginPrompt'
-import BuyNowButton from '../components/product/BuyNowButton'
-import AddToCartButton from '../components/product/AddToCartButton'
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  Heart,
+  SpinnerGap,
+  MagnifyingGlass,
+  Star,
+} from "@phosphor-icons/react";
+import { getProducts, getCategories } from "../api/client";
+import type { Product, Category } from "../types";
+import { useFavoritesStore } from "../store/favoritesStore";
+import LoginPrompt from "../components/ui/LoginPrompt";
+import BuyNowButton from "../components/product/BuyNowButton";
+import AddToCartButton from "../components/product/AddToCartButton";
 
 export default function Favorites() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
-  const [activeCategory, setActiveCategory] = useState('')
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
-  const [promptProduct, setPromptProduct] = useState<Product | null>(null)
-  const ids = useFavoritesStore((s) => s.ids)
-  const toggleFavorite = useFavoritesStore((s) => s.toggle)
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState("");
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [promptProduct, setPromptProduct] = useState<Product | null>(null);
+  const ids = useFavoritesStore((s) => s.ids);
+  const toggleFavorite = useFavoritesStore((s) => s.toggle);
 
   useEffect(() => {
     getProducts()
       .then(setProducts)
-      .finally(() => setLoading(false))
-    getCategories().then(setCategories).catch(() => {})
-  }, [])
+      .finally(() => setLoading(false));
+    getCategories()
+      .then(setCategories)
+      .catch(() => {});
+  }, []);
 
   const cleanProductName = (name: string): string => {
-    const words = name.split(' ')
-    const cleaned: string[] = []
+    const words = name.split(" ");
+    const cleaned: string[] = [];
     words.forEach((word) => {
-      if (cleaned.length === 0 || cleaned[cleaned.length - 1].toLowerCase() !== word.toLowerCase()) {
-        cleaned.push(word)
+      if (
+        cleaned.length === 0 ||
+        cleaned[cleaned.length - 1].toLowerCase() !== word.toLowerCase()
+      ) {
+        cleaned.push(word);
       }
-    })
-    return cleaned.join(' ')
-  }
+    });
+    return cleaned.join(" ");
+  };
 
   const favProducts = ids
     .map((id) => products.find((p) => p.id === id))
-    .filter((p): p is Product => Boolean(p))
+    .filter((p): p is Product => Boolean(p));
 
   const filtered = favProducts.filter((p) => {
-    const matchCat = !activeCategory || p.category === activeCategory
-    const q = search.trim().toLowerCase()
-    const matchSearch = !q || p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q)
-    return matchCat && matchSearch
-  })
+    const matchCat = !activeCategory || p.category === activeCategory;
+    const q = search.trim().toLowerCase();
+    const matchSearch =
+      !q ||
+      p.name.toLowerCase().includes(q) ||
+      (p.description || "").toLowerCase().includes(q);
+    return matchCat && matchSearch;
+  });
 
   return (
     <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
@@ -78,9 +91,11 @@ export default function Favorites() {
       {/* Category Filter */}
       <div className="flex flex-wrap gap-2 mb-8">
         <button
-          onClick={() => setActiveCategory('')}
+          onClick={() => setActiveCategory("")}
           className={`px-5 py-2.5 text-sm font-semibold rounded-[8px] transition-colors ${
-            !activeCategory ? 'bg-[#EA580C] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+            !activeCategory
+              ? "bg-[#EA580C] text-white"
+              : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
           }`}
         >
           Semua
@@ -90,7 +105,9 @@ export default function Favorites() {
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
             className={`px-5 py-2.5 text-sm font-semibold rounded-[8px] transition-colors ${
-              activeCategory === cat.id ? 'bg-[#EA580C] text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+              activeCategory === cat.id
+                ? "bg-[#EA580C] text-white"
+                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
             }`}
           >
             {cat.name}
@@ -112,10 +129,12 @@ export default function Favorites() {
               className="w-full h-full object-contain drop-shadow-lg"
             />
           </div>
-          <h2 className="text-2xl font-bold text-zinc-800 mb-3">Wah, Favoritmu Kosong!</h2>
+          <h2 className="text-2xl font-bold text-zinc-800 mb-3">
+            Wah, Favoritmu Kosong!
+          </h2>
           <p className="text-zinc-500 max-w-md mx-auto mb-8 leading-relaxed">
-            Sepertinya kamu belum menambahkan menu favorit. Jelajahi koleksi masakan
-            terbaik kami dan temukan rasa yang cocok di hati.
+            Sepertinya kamu belum menambahkan menu favorit. Jelajahi koleksi
+            masakan terbaik kami dan temukan rasa yang cocok di hati.
           </p>
           <Link
             to="/products"
@@ -133,10 +152,12 @@ export default function Favorites() {
               className="w-full h-full object-contain drop-shadow-lg"
             />
           </div>
-          <h2 className="text-2xl font-bold text-zinc-800 mb-3">Tidak ditemukan</h2>
+          <h2 className="text-2xl font-bold text-zinc-800 mb-3">
+            Tidak ditemukan
+          </h2>
           <p className="text-zinc-500 max-w-md mx-auto leading-relaxed">
-            Tidak ada favorit yang cocok dengan kata kunci atau kategori yang kamu pilih.
-            Coba cari dengan kata kunci lain.
+            Tidak ada favorit yang cocok dengan kata kunci atau kategori yang
+            kamu pilih. Coba cari dengan kata kunci lain.
           </p>
         </div>
       ) : (
@@ -146,7 +167,10 @@ export default function Favorites() {
               key={p.id}
               className="group bg-white rounded-2xl border border-zinc-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
             >
-              <Link to={`/products/${p.id}`} className="block relative overflow-hidden aspect-[4/3]">
+              <Link
+                to={`/products/${p.id}`}
+                className="block relative overflow-hidden aspect-[4/3]"
+              >
                 <img
                   src={p.image}
                   alt={p.name}
@@ -161,7 +185,7 @@ export default function Favorites() {
                   </div>
                 )}
                 <span className="absolute top-2 left-2 px-2.5 py-1 text-[11px] font-semibold bg-white/90 text-zinc-700 rounded-full">
-                  {p.categoryName || 'Produk'}
+                  {p.categoryName || "Produk"}
                 </span>
               </Link>
               <div className="p-3 md:p-4">
@@ -170,11 +194,46 @@ export default function Favorites() {
                     {cleanProductName(p.name)}
                   </h3>
                 </Link>
-                <p className="font-bold text-brand-600 text-base mb-3">
-                  Rp {p.price.toLocaleString('id-ID')}
-                </p>
+                <div className="flex items-center gap-2 mb-3">
+                  <p className="font-bold text-brand-600 text-base">
+                    Rp {p.price.toLocaleString("id-ID")}
+                  </p>
+
+                  {(p.avg_rating ?? 0) > 0 && (p.review_count ?? 0) > 0 ? (
+                    <div className="flex items-center gap-1">
+                      <Star
+                        size={13}
+                        weight="fill"
+                        className="text-amber-400"
+                      />
+                      <span className="text-xs font-semibold text-zinc-700">
+                        {(p.avg_rating ?? 0).toFixed(1)}
+                      </span>
+                      <span className="text-xs text-zinc-400">
+                        ({p.review_count})
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <Star
+                        size={13}
+                        weight="regular"
+                        className="text-zinc-300"
+                      />
+                      <span className="text-xs text-zinc-400">
+                        Belum ada ulasan
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <div className="flex flex-col gap-2">
-                  <BuyNowButton product={p} onRequireLogin={() => { setPromptProduct(p); setShowLoginPrompt(true) }} />
+                  <BuyNowButton
+                    product={p}
+                    onRequireLogin={() => {
+                      setPromptProduct(p);
+                      setShowLoginPrompt(true);
+                    }}
+                  />
                   <div className="flex items-center gap-2">
                     <Link
                       to={`/products/${p.id}`}
@@ -187,16 +246,22 @@ export default function Favorites() {
                       aria-label="Favorit"
                       className={`flex items-center justify-center w-9 h-9 rounded-[8px] transition-colors ${
                         ids.includes(p.id)
-                          ? 'text-brand-600 border-2 border-brand-600 bg-brand-50'
-                          : 'text-zinc-600 border-2 border-zinc-200 hover:border-brand-600 hover:text-brand-600'
+                          ? "text-brand-600 border-2 border-brand-600 bg-brand-50"
+                          : "text-zinc-600 border-2 border-zinc-200 hover:border-brand-600 hover:text-brand-600"
                       }`}
                     >
-                      <Heart size={18} weight={ids.includes(p.id) ? 'fill' : 'bold'} />
+                      <Heart
+                        size={18}
+                        weight={ids.includes(p.id) ? "fill" : "bold"}
+                      />
                     </button>
                     <AddToCartButton
                       product={p}
                       iconOnly
-                      onRequireLogin={() => { setPromptProduct(p); setShowLoginPrompt(true) }}
+                      onRequireLogin={() => {
+                        setPromptProduct(p);
+                        setShowLoginPrompt(true);
+                      }}
                     />
                   </div>
                 </div>
@@ -209,9 +274,9 @@ export default function Favorites() {
       <LoginPrompt
         open={showLoginPrompt}
         onClose={() => setShowLoginPrompt(false)}
-        redirect={promptProduct ? `/products/${promptProduct.id}` : '/'}
+        redirect={promptProduct ? `/products/${promptProduct.id}` : "/"}
         context="belanja"
       />
     </main>
-  )
+  );
 }

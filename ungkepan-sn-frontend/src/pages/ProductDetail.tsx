@@ -220,12 +220,28 @@ export default function ProductDetail() {
             {cleanProductName(product.name)}
           </h1>
 
-          <p className="mt-3 flex items-baseline gap-3">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#F5730C]">
+          <div className="flex items-center gap-2 mb-3">
+            <p className="font-bold text-brand-600 text-base">
               Rp {product.price.toLocaleString("id-ID")}
-            </span>
-          </p>
+            </p>
 
+            {(product.avg_rating ?? 0) > 0 && (product.review_count ?? 0) > 0 ? (
+              <div className="flex items-center gap-1">
+                <Star size={13} weight="fill" className="text-amber-400" />
+                <span className="text-xs font-semibold text-zinc-700">
+                  {(product.avg_rating ?? 0).toFixed(1)}
+                </span>
+                <span className="text-xs text-zinc-400">
+                  ({product.review_count})
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1">
+                <Star size={13} weight="regular" className="text-zinc-300" />
+                <span className="text-xs text-zinc-400">Belum ada ulasan</span>
+              </div>
+            )}
+          </div>
           {/* Weight + Stock */}
           <div className="mt-6 bg-[#FFF1E6]/60 rounded-2xl p-5 flex items-center justify-between gap-6">
             <div>
@@ -608,9 +624,38 @@ export default function ProductDetail() {
                       {cleanProductName(p.name)}
                     </h3>
                   </Link>
-                  <p className="font-bold text-brand-600 text-base mb-3">
-                    Rp {p.price.toLocaleString("id-ID")}
-                  </p>
+                  <div className="flex items-center gap-2 mb-3">
+                    <p className="font-bold text-brand-600 text-base">
+                      Rp {p.price.toLocaleString("id-ID")}
+                    </p>
+
+                    {(p.avg_rating ?? 0) > 0 && (p.review_count ?? 0) > 0 ? (
+                      <div className="flex items-center gap-1">
+                        <Star
+                          size={13}
+                          weight="fill"
+                          className="text-amber-400"
+                        />
+                        <span className="text-xs font-semibold text-zinc-700">
+                          {(p.avg_rating ?? 0).toFixed(1)}
+                        </span>
+                        <span className="text-xs text-zinc-400">
+                          ({p.review_count})
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        <Star
+                          size={13}
+                          weight="regular"
+                          className="text-zinc-300"
+                        />
+                        <span className="text-xs text-zinc-400">
+                          Belum ada ulasan
+                        </span>
+                      </div>
+                    )}
+                  </div>
                   <div className="flex flex-col gap-2">
                     <BuyNowButton
                       product={p}
