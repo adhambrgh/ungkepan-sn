@@ -259,8 +259,6 @@ export default function ProductDetail() {
               .map((p, i) => (p.trim() ? <p key={i}>{p}</p> : null))}
           </div>
 
-
-
           {/* Rating */}
           {avgRating && (
             <div className="mt-6 flex items-center gap-2">
@@ -287,42 +285,39 @@ export default function ProductDetail() {
           )}
 
           {/* Quantity + Add to Cart */}
-          <div className="flex flex-col gap-2 mt-6">
+          <div className="flex items-center gap-2 mt-6">
             <BuyNowButton
               product={product}
+              className="flex-1"
               onRequireLogin={() => {
                 setPromptProduct(product);
                 setShowLoginPrompt(true);
               }}
             />
-            <div className="flex items-center gap-2">
-              <Link
-                to={`/products/${product.id}`}
-                className="flex items-center justify-center flex-1 h-9 px-3 text-xs font-semibold rounded-[8px] transition-colors text-brand-600 border-2 border-brand-600 hover:bg-brand-50 active:bg-brand-100"
-              >
-                Lihat Detail
-              </Link>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (!authToken) {
-                    setShowLoginPrompt(true);
-                    return;
-                  }
-                  toggleFavorite(product.id);
-                }}
-                aria-label="Favorit"
-                className={`flex items-center justify-center w-9 h-9 rounded-[8px] transition-colors ${
-                  favIds.includes(product.id)
-                    ? "text-brand-600 border-2 border-brand-600 bg-brand-50"
-                    : "text-zinc-600 border-2 border-zinc-200 hover:border-brand-600 hover:text-brand-600"
-                }`}
-              >
-                <Heart
-                  size={18}
-                  weight={favIds.includes(product.id) ? "fill" : "bold"}
-                />
-              </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!authToken) {
+                  setShowLoginPrompt(true);
+                  return;
+                }
+                toggleFavorite(product.id);
+              }}
+              aria-label="Favorit"
+              className={`flex items-center justify-center w-11 h-11 shrink-0 rounded-[8px] transition-colors ${
+                favIds.includes(product.id)
+                  ? "text-brand-600 border-2 border-brand-600 bg-brand-50"
+                  : "text-zinc-600 border-2 border-zinc-200 hover:border-brand-600 hover:text-brand-600"
+              }`}
+            >
+              <Heart
+                size={18}
+                weight={favIds.includes(product.id) ? "fill" : "bold"}
+              />
+            </button>
+
+            <div className="w-11 h-11 shrink-0 [&>button]:w-full [&>button]:h-full">
               <AddToCartButton
                 product={product}
                 iconOnly

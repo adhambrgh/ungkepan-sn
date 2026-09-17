@@ -9,9 +9,10 @@ import QuantityPickerModal from "./QuantityPickerModal";
 type Props = {
   product: Product;
   onRequireLogin: () => void;
+  className?: string;
 };
 
-export default function BuyNowButton({ product, onRequireLogin }: Props) {
+export default function BuyNowButton({ product, onRequireLogin, className = "" }: Props) {
   const addItems = useCartStore((s) => s.addItems);
   const authToken = useAuthStore((s) => s.token);
   const [open, setOpen] = useState(false);
@@ -38,7 +39,7 @@ export default function BuyNowButton({ product, onRequireLogin }: Props) {
         type="button"
         onClick={openPicker}
         disabled={outOfStock}
-        className="flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-[8px] transition-colors text-white bg-brand-600 hover:bg-brand-700 active:bg-brand-800 disabled:bg-zinc-100 disabled:text-zinc-400 disabled:cursor-not-allowed"
+        className={`flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-[8px] transition-colors text-white bg-brand-600 hover:bg-brand-700 active:bg-brand-800 disabled:bg-zinc-100 disabled:text-zinc-400 disabled:cursor-not-allowed ${className}`}
       >
         Beli Sekarang
       </button>
