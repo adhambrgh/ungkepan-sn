@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { adminGetDashboard } from "../../api/client";
 
-
 interface DashboardData {
   total_products: number;
   total_orders: number;
@@ -100,14 +99,23 @@ export default function AdminDashboard() {
     : [];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl sm:text-[34px] font-extrabold tracking-tight text-zinc-800">
-          Dashboard
-        </h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Dashboard admin toko Ungkepan SN
-        </p>
+    <div className="space-y-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl sm:text-[34px] font-extrabold tracking-tight text-zinc-800">
+            Dashboard
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            Dashboard admin toko Ungkepan SN
+          </p>
+        </div>
+
+        <Link
+          to="/admin/dashboard/print"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 transition-colors shrink-0"
+        >
+          Cetak Laporan
+        </Link>
       </div>
 
       {error && (
@@ -464,12 +472,6 @@ export default function AdminDashboard() {
           </svg>
         </Link>
       </div>
-      <Link
-        to="/admin/dashboard/print"
-        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 transition-colors"
-      >
-        Cetak Laporan
-      </Link>
     </div>
   );
 }

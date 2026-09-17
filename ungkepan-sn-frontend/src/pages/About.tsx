@@ -122,7 +122,7 @@ export default function About() {
             </p>
             <Link
               to="/products"
-              className="mt-6 inline-flex items-center gap-2 px-8 py-2.5 text-base font-bold text-white bg-[#EA580C] hover:bg-[#d94e0b] rounded-[8px] transition-all hover:scale-105 active:scale-95"
+              className="mt-6 inline-flex items-center gap-2 px-7 py-2.5 text-base font-bold text-white bg-[#EA580C] hover:bg-[#d94e0b] rounded-[8px] transition-all hover:scale-105 active:scale-95"
             >
               {a.hero_button || "Lihat Produk Kami"}
             </Link>
@@ -221,7 +221,7 @@ export default function About() {
           </p>
           <Link
             to="/products"
-            className="mt-6 inline-flex items-center gap-2 px-8 py-2.5 text-base font-bold text-white bg-[#EA580C] hover:bg-[#d94e0b] rounded-[8px] transition-all hover:scale-105 active:scale-95"
+            className="mt-6 inline-flex items-center gap-2 px-7 py-2.5 text-base font-bold text-white bg-[#EA580C] hover:bg-[#d94e0b] rounded-[8px] transition-all hover:scale-105 active:scale-95"
           >
             {a.cta_button || "Mulai Pesan"}
           </Link>

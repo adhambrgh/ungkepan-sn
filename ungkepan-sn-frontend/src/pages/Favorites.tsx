@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Heart, SpinnerGap, MagnifyingGlass } from '@phosphor-icons/react'
+import { Heart, SpinnerGap, MagnifyingGlass } from '@phosphor-icons/react'
 import { getProducts, getCategories } from '../api/client'
 import type { Product, Category } from '../types'
-import { useCartStore } from '../store/cartStore'
-import { useAuthStore } from '../store/authStore'
 import { useFavoritesStore } from '../store/favoritesStore'
 import LoginPrompt from '../components/ui/LoginPrompt'
+import BuyNowButton from '../components/product/BuyNowButton'
+import AddToCartButton from '../components/product/AddToCartButton'
 
 export default function Favorites() {
   const [products, setProducts] = useState<Product[]>([])
@@ -18,8 +18,6 @@ export default function Favorites() {
   const [promptProduct, setPromptProduct] = useState<Product | null>(null)
   const ids = useFavoritesStore((s) => s.ids)
   const toggleFavorite = useFavoritesStore((s) => s.toggle)
-  const { addItem } = useCartStore()
-  const authToken = useAuthStore((s) => s.token)
 
   useEffect(() => {
     getProducts()
@@ -49,15 +47,6 @@ export default function Favorites() {
     const matchSearch = !q || p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q)
     return matchCat && matchSearch
   })
-
-  const handleQuickAdd = (p: Product) => {
-    if (!authToken) {
-      setPromptProduct(p)
-      setShowLoginPrompt(true)
-      return
-    }
-    addItem(p)
-  }
 
   return (
     <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
@@ -130,7 +119,7 @@ export default function Favorites() {
           </p>
           <Link
             to="/products"
-            className="inline-flex items-center gap-2 px-8 py-4 text-base font-bold text-white bg-[#EA580C] hover:bg-[#d94e0b] rounded-[8px] transition-colors"
+            className="inline-flex items-center gap-2 px-5  py-2.5 text-base font-bold text-white bg-[#EA580C] hover:bg-[#d94e0b] rounded-[8px] transition-colors"
           >
             Mulai Belanja Sekarang
           </Link>
@@ -185,33 +174,30 @@ export default function Favorites() {
                   Rp {p.price.toLocaleString('id-ID')}
                 </p>
                 <div className="flex flex-col gap-2">
-                  <Link
-                    to={`/products/${p.id}`}
-                    className="flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-[8px] transition-colors text-brand-600 border-2 border-brand-600 hover:bg-brand-50 active:bg-brand-100"
-                  >
-                    Lihat Detail
-                  </Link>
-                  <div className="grid grid-cols-2 gap-2">
+                  <BuyNowButton product={p} onRequireLogin={() => { setPromptProduct(p); setShowLoginPrompt(true) }} />
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to={`/products/${p.id}`}
+                      className="flex items-center justify-center flex-1 h-9 px-3 text-xs font-semibold rounded-[8px] transition-colors text-brand-600 border-2 border-brand-600 hover:bg-brand-50 active:bg-brand-100"
+                    >
+                      Lihat Detail
+                    </Link>
                     <button
                       onClick={() => toggleFavorite(p.id)}
                       aria-label="Favorit"
-                      className={`flex items-center justify-center gap-1.5 px-2 py-2.5 text-sm font-semibold rounded-[8px] transition-colors ${
+                      className={`flex items-center justify-center w-9 h-9 rounded-[8px] transition-colors ${
                         ids.includes(p.id)
                           ? 'text-brand-600 border-2 border-brand-600 bg-brand-50'
                           : 'text-zinc-600 border-2 border-zinc-200 hover:border-brand-600 hover:text-brand-600'
                       }`}
                     >
-                      <Heart size={16} weight={ids.includes(p.id) ? 'fill' : 'bold'} />
-                      Favorit
+                      <Heart size={18} weight={ids.includes(p.id) ? 'fill' : 'bold'} />
                     </button>
-                    <button
-                      onClick={() => handleQuickAdd(p)}
-                      disabled={p.stock === 0}
-                      className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-sm font-semibold rounded-[8px] transition-colors disabled:bg-zinc-100 disabled:text-zinc-400 disabled:cursor-not-allowed text-white bg-brand-600 hover:bg-brand-700 active:bg-brand-800"
-                    >
-                      <ShoppingCart size={16} weight="bold" />
-                      Keranjang
-                    </button>
+                    <AddToCartButton
+                      product={p}
+                      iconOnly
+                      onRequireLogin={() => { setPromptProduct(p); setShowLoginPrompt(true) }}
+                    />
                   </div>
                 </div>
               </div>

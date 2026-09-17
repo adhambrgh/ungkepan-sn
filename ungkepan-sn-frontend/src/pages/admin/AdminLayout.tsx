@@ -103,7 +103,7 @@ export default function AdminLayout() {
               to="/"
               className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-500 hover:text-brand-600 transition-colors"
             >
-              ← Ke Website
+              Ke Website
             </Link>
             <button
               onClick={handleLogout}

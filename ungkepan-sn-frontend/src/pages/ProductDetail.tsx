@@ -23,6 +23,7 @@ import { useFavoritesStore } from "../store/favoritesStore";
 import LoginPrompt from "../components/ui/LoginPrompt";
 import FavoriteButton from "../components/product/FavoriteButton";
 import AddToCartButton from "../components/product/AddToCartButton";
+import BuyNowButton from "../components/product/BuyNowButton";
 
 const cleanProductName = (name: string): string => {
   const words = name.split(" ");
@@ -60,7 +61,7 @@ export default function ProductDetail() {
   const [qtyError, setQtyError] = useState(false);
   const [purchased, setPurchased] = useState(false);
   const [purchaseChecked, setPurchaseChecked] = useState(false);
-
+  const [promptProduct, setPromptProduct] = useState<Product | null>(null);
   useEffect(() => {
     setLoading(true);
     Promise.all([
@@ -258,6 +259,8 @@ export default function ProductDetail() {
               .map((p, i) => (p.trim() ? <p key={i}>{p}</p> : null))}
           </div>
 
+
+
           {/* Rating */}
           {avgRating && (
             <div className="mt-6 flex items-center gap-2">
@@ -284,105 +287,51 @@ export default function ProductDetail() {
           )}
 
           {/* Quantity + Add to Cart */}
-          <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-            <div className="inline-flex items-center rounded-xl border border-black/10 overflow-hidden w-fit">
-              <button
-                type="button"
-                onClick={() =>
-                  setQty((q) => {
-                    const n = Math.max(1, q - 1);
-                    if (n <= product.stock) setQtyError(false);
-                    return n;
-                  })
-                }
-                className="w-11 h-12 flex items-center justify-center text-black/60 hover:bg-black/5 transition-colors"
+          <div className="flex flex-col gap-2 mt-6">
+            <BuyNowButton
+              product={product}
+              onRequireLogin={() => {
+                setPromptProduct(product);
+                setShowLoginPrompt(true);
+              }}
+            />
+            <div className="flex items-center gap-2">
+              <Link
+                to={`/products/${product.id}`}
+                className="flex items-center justify-center flex-1 h-9 px-3 text-xs font-semibold rounded-[8px] transition-colors text-brand-600 border-2 border-brand-600 hover:bg-brand-50 active:bg-brand-100"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                >
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
+                Lihat Detail
+              </Link>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!authToken) {
+                    setShowLoginPrompt(true);
+                    return;
+                  }
+                  toggleFavorite(product.id);
+                }}
+                aria-label="Favorit"
+                className={`flex items-center justify-center w-9 h-9 rounded-[8px] transition-colors ${
+                  favIds.includes(product.id)
+                    ? "text-brand-600 border-2 border-brand-600 bg-brand-50"
+                    : "text-zinc-600 border-2 border-zinc-200 hover:border-brand-600 hover:text-brand-600"
+                }`}
+              >
+                <Heart
+                  size={18}
+                  weight={favIds.includes(product.id) ? "fill" : "bold"}
+                />
               </button>
-              <input
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={product.stock}
-                value={qty}
-                onChange={(e) => {
-                  const v = parseInt(e.target.value, 10);
-                  if (e.target.value === "") {
-                    setQtyError(false);
-                    return;
-                  }
-                  if (isNaN(v)) {
-                    setQty(1);
-                    setQtyError(false);
-                    return;
-                  }
-                  setQty(v);
-                  setQtyError(v > product.stock);
+              <AddToCartButton
+                product={product}
+                iconOnly
+                onRequireLogin={() => {
+                  setPromptProduct(product);
+                  setShowLoginPrompt(true);
                 }}
-                onBlur={() => {
-                  if (qty < 1 || Number.isNaN(qty)) {
-                    setQty(1);
-                    setQtyError(false);
-                  }
-                }}
-                className="w-14 text-center font-bold text-sm focus:outline-none"
               />
-              <button
-                type="button"
-                onClick={() =>
-                  setQty((q) => {
-                    const n = Math.min(q + 1, product.stock);
-                    setQtyError(false);
-                    return n;
-                  })
-                }
-                disabled={qty >= product.stock}
-                className="w-11 h-12 flex items-center justify-center text-black/60 hover:bg-black/5 disabled:opacity-40 transition-colors"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                >
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-              </button>
             </div>
-
-            {qtyError && (
-              <p className="text-xs font-semibold text-red-600">
-                Jumlah melebihi stok. Stok tersedia: {product.stock}.
-              </p>
-            )}
-
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              disabled={product.stock === 0 || qtyError}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 text-sm font-semibold rounded-[8px] transition-colors disabled:bg-zinc-100 disabled:text-zinc-400 disabled:cursor-not-allowed text-white bg-brand-600 hover:bg-brand-700 active:bg-brand-800"
-            >
-              <ShoppingCart size={16} weight="bold" />
-              {quantity > 0
-                ? `Tambah Lagi (${quantity} di Keranjang)`
-                : "Tambah ke Keranjang"}
-            </button>
           </div>
 
           <Link
@@ -668,13 +617,17 @@ export default function ProductDetail() {
                     Rp {p.price.toLocaleString("id-ID")}
                   </p>
                   <div className="flex flex-col gap-2">
-                    <Link
-                      to={`/products/${p.id}`}
-                      className="flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-[8px] transition-colors text-brand-600 border-2 border-brand-600 hover:bg-brand-50 active:bg-brand-100"
-                    >
-                      Lihat Detail
-                    </Link>
-                    <div className="grid grid-cols-2 gap-2">
+                    <BuyNowButton
+                      product={p}
+                      onRequireLogin={() => setShowLoginPrompt(true)}
+                    />
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to={`/products/${p.id}`}
+                        className="flex items-center justify-center flex-1 h-9 px-3 text-xs font-semibold rounded-[8px] transition-colors text-brand-600 border-2 border-brand-600 hover:bg-brand-50 active:bg-brand-100"
+                      >
+                        Lihat Detail
+                      </Link>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -685,20 +638,20 @@ export default function ProductDetail() {
                           toggleFavorite(p.id);
                         }}
                         aria-label="Favorit"
-                        className={`flex items-center justify-center gap-1.5 px-2 py-2.5 text-sm font-semibold rounded-[8px] transition-colors ${
+                        className={`flex items-center justify-center w-9 h-9 rounded-[8px] transition-colors ${
                           favIds.includes(p.id)
                             ? "text-brand-600 border-2 border-brand-600 bg-brand-50"
                             : "text-zinc-600 border-2 border-zinc-200 hover:border-brand-600 hover:text-brand-600"
                         }`}
                       >
                         <Heart
-                          size={16}
+                          size={18}
                           weight={favIds.includes(p.id) ? "fill" : "bold"}
                         />
-                        Favorit
                       </button>
                       <AddToCartButton
                         product={p}
+                        iconOnly
                         onRequireLogin={() => setShowLoginPrompt(true)}
                       />
                     </div>

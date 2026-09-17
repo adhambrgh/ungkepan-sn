@@ -25,7 +25,9 @@ class OrderAdminController extends Controller
         $page = max(1, (int) $request->input('page', 1));
         $perPage = min(100, max(1, (int) $request->input('per_page', 50)));
 
-        $query = Order::with('items')->orderByDesc('created_at');
+        $query = Order::with('items')
+            ->where('status', '!=', 'pending_payment')
+            ->orderByDesc('created_at');
 
         if ($status !== '') {
             $query->where('status', $status);
@@ -52,7 +54,7 @@ class OrderAdminController extends Controller
             return response()->json(['error' => 'ID dan status required'], 400);
         }
 
-        if (! in_array($status, ['pending', 'processed', 'completed'])) {
+        if (! in_array($status, ['pending', 'pending_payment', 'processed', 'completed'])) {
             return response()->json(['error' => 'Status tidak valid'], 400);
         }
 

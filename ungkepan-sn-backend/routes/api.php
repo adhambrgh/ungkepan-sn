@@ -38,6 +38,7 @@ Route::middleware('throttle:api')->group(function () {
     Route::get('/orders.php', [OrderController::class, 'index']);
     Route::post('/orders.php', [OrderController::class, 'store']);
     Route::post('/orders-snap-token.php', [OrderController::class, 'getSnapToken']);
+    Route::delete('/orders-snap-token.php', [OrderController::class, 'destroyPendingOrder']);
     Route::post('/orders-callback.php', [OrderController::class, 'handleCallback']);
     Route::get('/payments.php', [PaymentController::class, 'index']);
     Route::get('/reviews.php', [ReviewController::class, 'index']);

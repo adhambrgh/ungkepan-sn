@@ -13,6 +13,7 @@ import { useAuthStore } from '../store/authStore'
 import { useFavoritesStore } from '../store/favoritesStore'
 import LoginPrompt from '../components/ui/LoginPrompt'
 import AddToCartButton from '../components/product/AddToCartButton'
+import BuyNowButton from '../components/product/BuyNowButton'
 import type { Category, Product, Review } from '../types'
 
 type SearchResults = { products: Product[]; categories: Category[] }
@@ -253,9 +254,7 @@ export default function Home() {
       <section className="relative text-white overflow-hidden min-h-screen flex items-center">
         {/* Background slideshow */}
         <div className="absolute inset-0">
-          {(hero?.images?.length ? hero.images : [
-            'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=1200&q=80&auto=format',
-          ]).map((img: string, i: number) => (
+          {(['/hero.png']).map((img: string, i: number) => (
             <div
               key={i}
               className={`absolute inset-0 transition-opacity duration-1000 ${
@@ -463,29 +462,30 @@ export default function Home() {
                     Rp {p.price.toLocaleString('id-ID')}
                   </p>
                   <div className="flex flex-col gap-2">
-                    <Link
-                      to={`/products/${p.id}`}
-                      className="flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-[8px] transition-colors text-brand-600 border-2 border-brand-600 hover:bg-brand-50 active:bg-brand-100"
-                    >
-                      Lihat Detail
-                    </Link>
-                    <div className="grid grid-cols-2 gap-2">
+                    <BuyNowButton product={p} onRequireLogin={() => { setPromptProduct(p); setShowLoginPrompt(true) }} />
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to={`/products/${p.id}`}
+                        className="flex items-center justify-center flex-1 h-9 px-3 text-xs font-semibold rounded-[8px] transition-colors text-brand-600 border-2 border-brand-600 hover:bg-brand-50 active:bg-brand-100"
+                      >
+                        Lihat Detail
+                      </Link>
                       <button
                         onClick={(e) => { e.stopPropagation(); if (!authToken) { setShowLoginPrompt(true); return } toggleFavorite(p.id) }}
                         aria-label="Favorit"
-                        className={`flex items-center justify-center gap-1.5 px-2 py-2.5 text-sm font-semibold rounded-[8px] transition-colors ${
+                        className={`flex items-center justify-center w-9 h-9 rounded-[8px] transition-colors ${
                           favIds.includes(p.id)
                             ? 'text-brand-600 border-2 border-brand-600 bg-brand-50'
                             : 'text-zinc-600 border-2 border-zinc-200 hover:border-brand-600 hover:text-brand-600'
                         }`}
                       >
-                        <Heart size={16} weight={favIds.includes(p.id) ? 'fill' : 'bold'} />
-                        Favorit
+                        <Heart size={18} weight={favIds.includes(p.id) ? 'fill' : 'bold'} />
                       </button>
-<AddToCartButton
-                      product={p}
-                      onRequireLogin={() => { setPromptProduct(p); setShowLoginPrompt(true) }}
-                    />
+                      <AddToCartButton
+                        product={p}
+                        iconOnly
+                        onRequireLogin={() => { setPromptProduct(p); setShowLoginPrompt(true) }}
+                      />
                     </div>
                   </div>
                 </div>

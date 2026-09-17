@@ -151,12 +151,12 @@ export default function Login() {
                   {showPw ? <EyeSlash size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              <a
-                href="#"
+              <Link
+                to="/forgot-password"
                 className="mt-2 inline-block text-xs font-semibold text-brand-600 hover:text-brand-700 transition-colors"
               >
                 Lupa Password?
-              </a>
+              </Link>
             </div>
 
             <button

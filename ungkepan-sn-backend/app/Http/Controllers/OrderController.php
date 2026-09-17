@@ -18,7 +18,9 @@ class OrderController extends Controller
         $phone = $request->input('phone');
         $user = $request->user();
 
-        $query = Order::with('items')->orderByDesc('created_at');
+        $query = Order::with('items')
+            ->where('status', '!=', 'pending_payment')
+            ->orderByDesc('created_at');
 
         if ($user) {
             $query->where('user_id', $user->id);
@@ -82,6 +84,10 @@ class OrderController extends Controller
         }
 
         $orderCode = 'WM-' . strtoupper(substr(base_convert((string) time(), 10, 36), -6));
+        $paymentMethodLower = strtolower($paymentMethod);
+        $isMidtrans = str_contains($paymentMethodLower, 'midtrans')
+            || str_contains($paymentMethodLower, 'snap')
+            || str_contains($paymentMethodLower, 'online');
 
         $user = $request->user();
 
@@ -157,7 +163,7 @@ class OrderController extends Controller
                 'total' => max(0, $serverTotal - $discount),
                 'discount' => $discount,
                 'promo_code' => $promoCode,
-                'status' => 'pending',
+                'status' => $isMidtrans ? 'pending_payment' : 'pending',
             ]);
 
             foreach ($items as $itemData) {
@@ -177,10 +183,6 @@ class OrderController extends Controller
 
             // Generate Snap token jika payment method adalah Midtrans
             $snapToken = null;
-            $paymentMethodLower = strtolower($paymentMethod);
-            $isMidtrans = (str_contains($paymentMethodLower, 'midtrans')
-                || str_contains($paymentMethodLower, 'snap')
-                || str_contains($paymentMethodLower, 'online'));
 
             if ($isMidtrans) {
                 try {
@@ -218,7 +220,7 @@ class OrderController extends Controller
             return response()->json(['error' => 'Pesanan tidak ditemukan'], 404);
         }
 
-        if ($order->status !== 'pending') {
+        if ($order->status !== 'pending_payment') {
             return response()->json(['error' => 'Pesanan sudah diproses atau dibatalkan'], 422);
         }
 
@@ -229,6 +231,34 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Gagal membuat token pembayaran: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function destroyPendingOrder(Request $request)
+    {
+        $orderCode = Sanitize::text($request->input('order_code'), 50);
+
+        if (! $orderCode) {
+            return response()->json(['error' => 'order_code wajib diisi'], 422);
+        }
+
+        $order = Order::where('order_code', $orderCode)->first();
+
+        if (! $order || $order->status !== 'pending_payment') {
+            return response()->json(['error' => 'Pesanan tidak ditemukan atau sudah diproses'], 404);
+        }
+
+        // Kembalikan stok
+        foreach ($order->items as $item) {
+            DB::table('products')->where('id', $item->product_id)->increment('stock', $item->quantity);
+        }
+
+        // Hapus order
+        $order->delete();
+
+        // Notifikasi stok
+        \App\Support\StockNotifier::bump();
+
+        return response()->json(['success' => true]);
     }
 
     public function handleCallback(Request $request)

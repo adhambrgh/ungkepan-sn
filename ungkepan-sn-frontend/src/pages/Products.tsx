@@ -8,6 +8,7 @@ import { useFavoritesStore } from '../store/favoritesStore'
 import type { Product, Category } from '../types'
 import LoginPrompt from '../components/ui/LoginPrompt'
 import AddToCartButton from '../components/product/AddToCartButton'
+import BuyNowButton from '../components/product/BuyNowButton'
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -187,27 +188,28 @@ export default function Products() {
                   Rp {product.price.toLocaleString('id-ID')}
                 </p>
                 <div className="flex flex-col gap-2">
-                  <Link
-                    to={`/products/${product.id}`}
-                    className="flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-[8px] transition-colors text-brand-600 border-2 border-brand-600 hover:bg-brand-50 active:bg-brand-100"
-                  >
-                    Lihat Detail
-                  </Link>
-                  <div className="grid grid-cols-2 gap-2">
+                  <BuyNowButton product={product} onRequireLogin={() => { setPromptProduct(product); setShowLoginPrompt(true) }} />
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to={`/products/${product.id}`}
+                      className="flex items-center justify-center flex-1 h-9 px-3 text-xs font-semibold rounded-[8px] transition-colors text-brand-600 border-2 border-brand-600 hover:bg-brand-50 active:bg-brand-100"
+                    >
+                      Lihat Detail
+                    </Link>
                     <button
                       onClick={(e) => { e.stopPropagation(); if (!authToken) { setShowLoginPrompt(true); return } toggleFavorite(product.id) }}
                       aria-label="Favorit"
-                      className={`flex items-center justify-center gap-1.5 px-2 py-2.5 text-sm font-semibold rounded-[8px] transition-colors ${
+                      className={`flex items-center justify-center w-9 h-9 rounded-[8px] transition-colors ${
                         favIds.includes(product.id)
                           ? 'text-brand-600 border-2 border-brand-600 bg-brand-50'
                           : 'text-zinc-600 border-2 border-zinc-200 hover:border-brand-600 hover:text-brand-600'
                       }`}
                     >
-                      <Heart size={16} weight={favIds.includes(product.id) ? 'fill' : 'bold'} />
-                      Favorit
+                      <Heart size={18} weight={favIds.includes(product.id) ? 'fill' : 'bold'} />
                     </button>
                     <AddToCartButton
                       product={product}
+                      iconOnly
                       onRequireLogin={() => { setPromptProduct(product); setShowLoginPrompt(true) }}
                     />
                   </div>

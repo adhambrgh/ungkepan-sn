@@ -11,9 +11,9 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $totalProducts = DB::table('products')->count();
-        $totalOrders = DB::table('orders')->count();
+        $totalOrders = DB::table('orders')->where('status', '!=', 'pending_payment')->count();
         $totalRevenue = DB::table('orders')
-            ->where('status', '!=', 'pending')
+            ->whereNotIn('status', ['pending', 'pending_payment'])
             ->sum('total');
 
         $pendingOrders = DB::table('orders')->where('status', 'pending')->count();
@@ -22,6 +22,7 @@ class DashboardController extends Controller
         $completedOrders = DB::table('orders')->where('status', 'completed')->count();
 
         $recentOrders = DB::table('orders')
+            ->where('status', '!=', 'pending_payment')
             ->select('order_code', 'customer_name', 'total', 'status', 'created_at')
             ->orderByDesc('created_at')
             ->limit(5)
@@ -49,7 +50,7 @@ class DashboardController extends Controller
         $startDate = now()->subMonths(11)->startOfMonth();
         $rows = DB::table('orders')
             ->selectRaw('YEAR(created_at) as yr, MONTH(created_at) as mn, COALESCE(SUM(total),0) as value, COUNT(*) as orders')
-            ->where('status', '!=', 'pending')
+            ->whereNotIn('status', ['pending', 'pending_payment'])
             ->where('created_at', '>=', $startDate)
             ->groupByRaw('YEAR(created_at), MONTH(created_at)')
             ->get()
@@ -116,7 +117,7 @@ class DashboardController extends Controller
         // Hitung jumlah order per bulan (dari tabel orders langsung)
         $ordersPerMonth = DB::table('orders')
             ->selectRaw('YEAR(created_at) as yr, MONTH(created_at) as mn, COUNT(*) as cnt')
-            ->where('status', '!=', 'pending')
+            ->whereNotIn('status', ['pending', 'pending_payment'])
             ->where('created_at', '>=', $startDate)
             ->groupByRaw('YEAR(created_at), MONTH(created_at)')
             ->get();

@@ -312,7 +312,7 @@ setSubmitting(true)
       if (discountInfo?.code) {
         useCustomerPromo(discountInfo.code, orderCode).catch(() => {})
       }
-      addOrder({
+      const recordOrder = () => addOrder({
         id: orderCode,
         items: [...selectedItems],
         total: getTotal(),
@@ -360,15 +360,22 @@ setSubmitting(true)
           const openSnap = () => {
             payWithSnap(token, {
               onSuccess: () => {
-                // Berhasil → bersihkan cart, tampilkan struk
+                // Berhasil → catat order lokal, bersihkan cart, tampilkan struk
+                recordOrder()
                 clearCart()
+                setPendingSnapToken(null)
                 setSubmitted(true)
               },
               onPending: () => {},
               onError: () => {},
               onClose: () => {
-                // Cancel → tetap di checkout, form masih utuh
-                // User bisa klik "Buat Pesanan" lagi untuk retry
+                // Cancel / close → hapus order pending_payment di backend
+                fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders-snap-token.php`, {
+                  method: 'DELETE',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ order_code: orderCode }),
+                }).catch(() => {})
+                setPendingSnapToken(null)
               },
             })
           }
@@ -382,7 +389,8 @@ setSubmitting(true)
         return
       }
 
-      // Non-Midtrans (COD): langsung ke halaman sukses
+      // Non-Midtrans (COD): langsung catat order lokal & ke halaman sukses
+      recordOrder()
       clearCart()
       setPendingSnapToken(null)
       setSubmitted(true)
