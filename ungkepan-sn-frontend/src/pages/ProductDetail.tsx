@@ -220,7 +220,7 @@ export default function ProductDetail() {
             {cleanProductName(product.name)}
           </h1>
 
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3 mt-5">
             <p className="font-bold text-brand-600 text-base">
               Rp {product.price.toLocaleString("id-ID")}
             </p>
