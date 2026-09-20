@@ -147,7 +147,7 @@ export default function Favorites() {
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="relative w-48 h-48 mb-8">
             <img
-              src="/favoritkosong.png"
+              src="/keranjangkosong.png"
               alt="Tidak ditemukan"
               className="w-full h-full object-contain drop-shadow-lg"
             />
