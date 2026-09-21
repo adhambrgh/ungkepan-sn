@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default function BuyNowButton({ product, onRequireLogin, className = "" }: Props) {
-  const addItems = useCartStore((s) => s.addItems);
+  const setBuyNowItem = useCartStore((s) => s.setBuyNowItem);
   const authToken = useAuthStore((s) => s.token);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -29,7 +29,8 @@ export default function BuyNowButton({ product, onRequireLogin, className = "" }
   };
 
   const confirm = (p: Product, qty: number) => {
-    addItems(p, qty);
+    setBuyNowItem({ product: p, quantity: qty, selected: true });
+    setOpen(false);
     navigate("/checkout");
   };
 
@@ -48,6 +49,7 @@ export default function BuyNowButton({ product, onRequireLogin, className = "" }
         open={open}
         onClose={() => setOpen(false)}
         onConfirm={confirm}
+        confirmLabel="Checkout"
       />
     </>
   );

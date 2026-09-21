@@ -79,6 +79,7 @@ Route::middleware(['customer.auth', 'throttle:api'])->group(function () {
     Route::post('/profile-avatar.php', [ProfileController::class, 'uploadAvatar']);
     Route::post('/change-password.php', [ProfileController::class, 'changePassword']);
     Route::post('/orders-confirm.php', [OrderController::class, 'confirmReceived']);
+    Route::post('/orders-paid.php', [OrderController::class, 'markPaid']);
 
     Route::get('/addresses.php', [AddressController::class, 'index']);
     Route::post('/addresses.php', [AddressController::class, 'store']);

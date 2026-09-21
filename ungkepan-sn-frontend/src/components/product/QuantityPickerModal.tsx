@@ -8,9 +8,10 @@ type Props = {
   open: boolean
   onClose: () => void
   onConfirm: (product: Product, qty: number) => void
+  confirmLabel?: string
 }
 
-export default function QuantityPickerModal({ product, open, onClose, onConfirm }: Props) {
+export default function QuantityPickerModal({ product, open, onClose, onConfirm, confirmLabel = "Tambah" }: Props) {
   const [qty, setQty] = useState(1)
   const [qtyError, setQtyError] = useState(false)
   const max = Math.max(product.stock || 1, 1)
@@ -131,15 +132,15 @@ export default function QuantityPickerModal({ product, open, onClose, onConfirm 
             >
               Batal
             </button>
-            <button
-              type="button"
-              onClick={confirm}
-              disabled={qtyError || outOfStock}
-              className="flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-bold rounded-[8px] text-white bg-brand-600 hover:bg-brand-700 active:bg-brand-800 disabled:bg-zinc-300 disabled:cursor-not-allowed transition-colors"
-            >
-              <ShoppingCart size={16} weight="bold" />
-              Tambah
-            </button>
+<button
+               type="button"
+               onClick={confirm}
+               disabled={qtyError || outOfStock}
+               className="flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-bold rounded-[8px] text-white bg-brand-600 hover:bg-brand-700 active:bg-brand-800 disabled:bg-zinc-300 disabled:cursor-not-allowed transition-colors"
+             >
+               <ShoppingCart size={16} weight="bold" />
+               {confirmLabel}
+             </button>
           </div>
         </div>
       </div>

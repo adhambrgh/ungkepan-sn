@@ -68,11 +68,17 @@ export default function PasswordForm({ user }: Props) {
         <div>
           <label className={labelCls}>Password Baru</label>
           <input type={show ? 'text' : 'password'} value={next} onChange={(e) => setNext(e.target.value)} className={inputCls} placeholder="minimal 6 karakter" autoComplete="new-password" required />
+          <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-[#C2410C]" aria-label="Tampilkan">
+              {show ? <EyeSlash size={20} /> : <Eye size={20} />}
+            </button>
         </div>
 
         <div>
           <label className={labelCls}>Ulangi Password Baru</label>
           <input type={show ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} className={inputCls} placeholder="••••••••" autoComplete="new-password" required />
+          <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-[#C2410C]" aria-label="Tampilkan">
+              {show ? <EyeSlash size={20} /> : <Eye size={20} />}
+            </button>
         </div>
 
         {msg && (

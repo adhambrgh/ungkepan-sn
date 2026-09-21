@@ -10,14 +10,14 @@ import type { Order, CartItem, Product } from '../types'
 const statusConfig: Record<string, { label: string; color: string }> = {
   pending: { label: 'Menunggu Konfirmasi', color: 'text-amber-500' },
   processed: { label: 'Diproses', color: 'text-blue-500' },
-  shipped: { label: 'Diproses', color: 'text-blue-500' },
+  shipped: { label: 'Dikirim', color: 'text-orange-500' },
   completed: { label: 'Selesai', color: 'text-green-500' },
 }
 
 const statusFilters = [
   { value: '', label: 'Semua' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'active', label: 'Diproses' },
+  { value: 'processed', label: 'Diproses' },
+  { value: 'shipped', label: 'Dikirim' },
   { value: 'completed', label: 'Selesai' },
 ]
 
@@ -50,13 +50,6 @@ function buildItem(it: DbOrderItem, productsMap: Map<string, Product>): CartItem
       stock: p?.stock ?? 0,
     },
   }
-}
-
-function mergeOrders(primary: Order[], secondary: Order[]): Order[] {
-  const map = new Map<string, Order>()
-  secondary.forEach((o) => map.set(o.id, o))
-  primary.forEach((o) => map.set(o.id, o))
-  return [...map.values()]
 }
 
 function toOrder(db: DbOrder, productsMap: Map<string, Product>): Order {
@@ -114,7 +107,7 @@ export default function Orders() {
           const dbOrders = await getMyOrders()
           if (active) {
             const serverOrders = (dbOrders || []).map((o: any) => toOrder(o, productsMap))
-            setOrders(mergeOrders(serverOrders, localOrders))
+            setOrders(serverOrders)
           }
           return
         } catch {
@@ -134,10 +127,10 @@ export default function Orders() {
 
   const q = search.trim().toLowerCase()
   const filteredBase =
-    filter === 'pending'
-      ? orders.filter((o) => o.status === 'pending')
-      : filter === 'active'
-        ? orders.filter((o) => o.status === 'processed' || o.status === 'shipped')
+    filter === 'processed'
+      ? orders.filter((o) => o.status === 'processed')
+      : filter === 'shipped'
+        ? orders.filter((o) => o.status === 'shipped')
         : filter === 'completed'
           ? orders.filter((o) => o.status === 'completed')
           : orders
@@ -157,6 +150,8 @@ export default function Orders() {
     try {
       await confirmOrderReceived(order.id)
       setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, status: 'completed' } : o)))
+      const prev = useCartStore.getState().activeOrdersCount
+      useCartStore.getState().setActiveOrdersCount(Math.max(0, prev - 1))
     } catch (err: any) {
       setConfirmMsg(err.message || 'Gagal konfirmasi')
     } finally {
@@ -211,12 +206,6 @@ export default function Orders() {
 
       {awaitingConfirm.length > 0 && (
         <div className="mb-6 rounded-2xl border border-brand-200 bg-brand-50 p-4 md:p-5">
-          <div className="flex items-start gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-brand-600 text-white shrink-0">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1h2m8 0V6a1 1 0 011-1h2a1 1 0 011 1v14a1 1 0 01-1 1h-2m0 0l-3 3m0 0l-3-3m3 3V6" />
-              </svg>
-            </div>
             <div className="flex-1 min-w-0">
               <p className="font-bold text-zinc-800">
                 Pesanan kamu lagi dikirim 
@@ -230,7 +219,6 @@ export default function Orders() {
               </p>
             </div>
           </div>
-        </div>
       )}
 
       {filtered.length === 0 ? (
@@ -332,7 +320,7 @@ export default function Orders() {
                   <p className="text-xs text-zinc-400">
                     {order.paymentMethod === 'cod' ? 'Bayar di Tempat' : order.paymentMethod === 'transfer' ? 'Transfer Bank' : 'E-Wallet'}
                     {' — '}
-                    {order.shippingMethod === 'ambil' ? 'Ambil Langsung' : order.shippingMethod === 'gosend' ? 'GoSend' : order.shippingMethod === 'jne' ? 'JNE' : 'J&T'}
+                    {order.shippingMethod === 'ambil' ? 'Ambil Langsung' : order.shippingMethod === 'lokal' ? 'Lokal' : order.shippingMethod === 'gosend' ? 'GoSend' : order.shippingMethod === 'jne' ? 'JNE' : order.shippingMethod === 'jnt' ? 'J&T' : order.shippingMethod}
                   </p>
                   <p className="font-bold text-brand-600">
                     Rp {order.total.toLocaleString('id-ID')}

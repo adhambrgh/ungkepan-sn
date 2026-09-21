@@ -18,14 +18,30 @@ class OrderController extends Controller
         $phone = $request->input('phone');
         $user = $request->user();
 
+        if (! $user) {
+            $token = $request->bearerToken();
+            if ($token) {
+                $user = User::where('api_token', hash('sha256', $token))->first();
+            }
+        }
+
         $query = Order::with('items')
             ->where('status', '!=', 'pending_payment')
             ->orderByDesc('created_at');
 
         if ($user) {
-            $query->where('user_id', $user->id);
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+                if ($user->phone) {
+                    $q->orWhere(function ($q2) use ($user) {
+                        $q2->whereNull('user_id')->where('phone', $user->phone);
+                    });
+                }
+            });
         } elseif ($phone) {
             $query->where('phone', $phone);
+        } else {
+            return response()->json([]);
         }
 
         $orders = $query->get();
@@ -53,7 +69,7 @@ class OrderController extends Controller
         }
 
         $isPickup = $order->shipping_method === 'ambil';
-        $canConfirm = $order->status === 'processed';
+        $canConfirm = ($isPickup && $order->status === 'processed') || (!$isPickup && $order->status === 'shipped');
 
         if (! $canConfirm) {
             return response()->json(['error' => 'Pesanan belum bisa dikonfirmasi diterima'], 422);
@@ -88,8 +104,19 @@ class OrderController extends Controller
         $isMidtrans = str_contains($paymentMethodLower, 'midtrans')
             || str_contains($paymentMethodLower, 'snap')
             || str_contains($paymentMethodLower, 'online');
+        $isCod = str_contains($paymentMethodLower, 'cod')
+            || str_contains($paymentMethodLower, 'bayar')
+            || str_contains($paymentMethodLower, 'cash')
+            || str_contains($paymentMethodLower, 'tempat');
 
         $user = $request->user();
+
+        if (! $user) {
+            $token = $request->bearerToken();
+            if ($token) {
+                $user = User::where('api_token', hash('sha256', $token))->first();
+            }
+        }
 
         try {
             DB::beginTransaction();
@@ -163,7 +190,7 @@ class OrderController extends Controller
                 'total' => max(0, $serverTotal - $discount),
                 'discount' => $discount,
                 'promo_code' => $promoCode,
-                'status' => $isMidtrans ? 'pending_payment' : 'pending',
+                'status' => $isMidtrans ? 'pending_payment' : ($isCod ? 'processed' : 'pending'),
             ]);
 
             foreach ($items as $itemData) {
@@ -233,6 +260,43 @@ class OrderController extends Controller
         }
     }
 
+    public function markPaid(Request $request)
+    {
+        $user = $request->user();
+        $code = Sanitize::text($request->input('order_code', ''), 50);
+
+        if ($code === '') {
+            return response()->json(['error' => 'Kode pesanan wajib diisi'], 422);
+        }
+
+        $order = Order::where('order_code', $code)->first();
+
+        if (! $order) {
+            return response()->json(['error' => 'Pesanan tidak ditemukan'], 404);
+        }
+
+        if ($user->phone && $order->phone !== $user->phone) {
+            return response()->json(['error' => 'Pesanan ini bukan milik kamu'], 403);
+        }
+
+        if ($order->status !== 'pending_payment') {
+            return response()->json(['error' => 'Pesanan sudah diproses'], 422);
+        }
+
+        $payMethodLower = strtolower($order->payment_method ?? '');
+        $isMidtrans = str_contains($payMethodLower, 'midtrans')
+            || str_contains($payMethodLower, 'snap')
+            || str_contains($payMethodLower, 'online');
+
+        if (! $isMidtrans) {
+            return response()->json(['error' => 'Metode pembayaran tidak didukung'], 422);
+        }
+
+        $order->update(['status' => 'processed']);
+
+        return response()->json(['success' => true]);
+    }
+
     public function destroyPendingOrder(Request $request)
     {
         $orderCode = Sanitize::text($request->input('order_code'), 50);
@@ -277,7 +341,7 @@ class OrderController extends Controller
                 $data['fraud_status']
             );
 
-            if ($newStatus === 'cancelled' && in_array($order->status, ['processed', 'completed'])) {
+            if ($newStatus === 'cancelled' && in_array($order->status, ['processed', 'shipped', 'completed'])) {
                 return response()->json(['status' => 'ignored']);
             }
 

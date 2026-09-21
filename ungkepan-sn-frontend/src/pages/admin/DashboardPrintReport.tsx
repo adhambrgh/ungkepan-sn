@@ -6,7 +6,6 @@ interface DashboardData {
   total_products: number
   total_orders: number
   total_revenue: number
-  pending_orders: number
   processed_orders: number
   shipped_orders: number
   completed_orders: number
@@ -130,7 +129,6 @@ export default function DashboardPrintReport() {
     .slice(0, 5)
 
   const statusCounts = {
-    pending: filteredOrders.filter((o) => o.status === 'pending').length,
     processed: filteredOrders.filter((o) => o.status === 'processed').length,
     shipped: filteredOrders.filter((o) => o.status === 'shipped').length,
     completed: filteredOrders.filter((o) => o.status === 'completed').length,
@@ -360,7 +358,6 @@ export default function DashboardPrintReport() {
             <table className="w-full border-collapse text-[11px]">
               <thead>
                 <tr className="bg-zinc-100">
-                  <th className="border border-zinc-200 p-1.5 text-left">Menunggu</th>
                   <th className="border border-zinc-200 p-1.5 text-left">Diproses</th>
                   <th className="border border-zinc-200 p-1.5 text-left">Dikirim</th>
                   <th className="border border-zinc-200 p-1.5 text-left">Selesai</th>
@@ -368,7 +365,6 @@ export default function DashboardPrintReport() {
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-zinc-200 p-1.5">{statusCounts.pending}</td>
                   <td className="border border-zinc-200 p-1.5">{statusCounts.processed}</td>
                   <td className="border border-zinc-200 p-1.5">{statusCounts.shipped}</td>
                   <td className="border border-zinc-200 p-1.5">{statusCounts.completed}</td>

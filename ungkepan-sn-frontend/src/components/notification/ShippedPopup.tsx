@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { Truck, X } from '@phosphor-icons/react'
 import { useShippedNotifications } from '../../hooks/useShippedNotifications'
 
 export default function ShippedPopup() {
@@ -15,9 +14,6 @@ export default function ShippedPopup() {
       <div className="relative w-full max-w-sm rounded-2xl bg-white shadow-2xl border border-brand-100 overflow-hidden">
         <div className="bg-brand-600 px-5 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/15">
-              <Truck size={20} weight="fill" className="text-white" />
-            </div>
             <h2 className="text-white font-bold text-[15px]">Pesananmu Lagi Dikirim</h2>
           </div>
           <button
@@ -25,7 +21,7 @@ export default function ShippedPopup() {
             className="flex items-center justify-center w-7 h-7 rounded-full text-white/80 hover:bg-white/10 transition-colors"
             aria-label="Tutup"
           >
-            <X size={16} weight="bold" />
+
           </button>
         </div>
 
@@ -38,7 +34,7 @@ export default function ShippedPopup() {
           </p>
           <div className="mt-5 flex gap-2">
             <Link
-              to="/profil"
+              to="/profil?tab=pesanan"
               onClick={dismiss}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl active:scale-95 transition-all"
             >

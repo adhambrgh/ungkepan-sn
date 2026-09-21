@@ -482,6 +482,14 @@ export async function confirmOrderReceived(order_code: string) {
   })
 }
 
+export async function markOrderPaid(order_code: string) {
+  return request<{ success: boolean }>('/orders-paid.php', {
+    method: 'POST',
+    headers: customerAuthHeaders(),
+    body: JSON.stringify({ order_code }),
+  })
+}
+
 // ─── Site Content (Tentang Kami, dll) ───
 
 export async function getSiteContent(page = 'about') {

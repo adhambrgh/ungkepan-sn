@@ -40,20 +40,21 @@ interface Order {
 const statusLabels: Record<string, string> = {
   pending: "Pending",
   processed: "Diproses",
-  shipped: "Diproses",
+  shipped: "Dikirim",
   completed: "Selesai",
 };
 
 const statusColors: Record<string, string> = {
   pending: "text-amber-600",
   processed: "bg-blue-50 text-blue-600",
-  shipped: "bg-blue-50 text-blue-600",
+  shipped: "bg-orange-50 text-orange-600",
   completed: "bg-green-50 text-green-600",
 };
 
 const nextStatus: Record<string, string> = {
   pending: "processed",
-  processed: "completed",
+  processed: "shipped",
+  shipped: "completed",
   completed: "",
 };
 
@@ -179,7 +180,7 @@ export default function AdminOrders() {
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
-          {["", "pending", "processed", "completed"].map((s) => (
+          {["", "processed", "shipped", "completed"].map((s) => (
             <button
               key={s}
               onClick={() => setFilter(s)}
@@ -262,11 +263,15 @@ export default function AdminOrders() {
                   <Truck size={14} className="text-zinc-400 shrink-0" />
                   {o.shipping_method === "ambil"
                     ? "Ambil Langsung"
-                    : o.shipping_method === "gosend"
-                      ? "GoSend"
-                      : o.shipping_method === "jne"
-                        ? "JNE"
-                        : "J&T"}
+                    : o.shipping_method === "lokal"
+                      ? "Lokal"
+                      : o.shipping_method === "gosend"
+                        ? "GoSend"
+                        : o.shipping_method === "jne"
+                          ? "JNE"
+                          : o.shipping_method === "jnt"
+                            ? "J&T"
+                            : o.shipping_method}
                   <span className="text-zinc-300 mx-1">|</span>
                   <CreditCard size={14} className="text-zinc-400 shrink-0" />
                   {o.payment_method}
@@ -301,12 +306,12 @@ export default function AdminOrders() {
               <div className="border-t border-zinc-100 pt-3 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
                 <div className="flex flex-wrap gap-2">
                   {nextStatus[o.status] && (
-                    <button
-                      onClick={() => handleStatus(o.id, nextStatus[o.status])}
-                      className="px-4 sm:px-5 py-2.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-[8px] transition-colors"
-                    >
-                      Proses ke {statusLabels[nextStatus[o.status]]}
-                    </button>
+<button
+                       onClick={() => handleStatus(o.id, nextStatus[o.status])}
+                       className="px-4 sm:px-5 py-2.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-[8px] transition-colors"
+                     >
+                       Ubah ke {statusLabels[nextStatus[o.status]]}
+                     </button>
                   )}
                   <button
                     onClick={() => handleDelete(o.id, o.order_code)}

@@ -15,13 +15,14 @@ const navLinks = [
 
 export default function Navbar() {
   const totalItems = useCartStore((s) => s.getTotalItems())
+  const activeOrdersCount = useCartStore((s) => s.activeOrdersCount)
+  const setActiveOrdersCount = useCartStore((s) => s.setActiveOrdersCount)
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
-  const [activeOrdersCount, setActiveOrdersCount] = useState(0)
 
   const activeIdx = navLinks.findIndex((l) => location.pathname === l.path)
   const profileTab = new URLSearchParams(location.search).get('tab')
@@ -83,13 +84,19 @@ export default function Navbar() {
   useEffect(() => {
     if (!user) { setActiveOrdersCount(0); return }
     let active = true
-    getMyOrders().then((orders) => {
-      if (!active) return
-      const count = (orders || []).filter((o: any) => o.status !== 'completed').length
-      setActiveOrdersCount(count)
-    }).catch(() => { if (active) setActiveOrdersCount(0) })
-    return () => { active = false }
-  }, [user])
+
+    const fetchCount = () => {
+      getMyOrders().then((orders) => {
+        if (!active) return
+        const count = (orders || []).filter((o: any) => o.status === 'shipped' || (o.shipping_method === 'ambil' && o.status === 'processed')).length
+        setActiveOrdersCount(count)
+      }).catch(() => { if (active) setActiveOrdersCount(0) })
+    }
+
+    fetchCount()
+    const timer = setInterval(fetchCount, 30000)
+    return () => { active = false; clearInterval(timer) }
+  }, [user, location.pathname])
 
   useEffect(() => {
     const onResize = () => showIndicatorFor(hoverIdx ?? activeIdx)

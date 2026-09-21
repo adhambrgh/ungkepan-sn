@@ -6,8 +6,8 @@ interface DashboardData {
   total_products: number;
   total_orders: number;
   total_revenue: number;
-  pending_orders: number;
   processed_orders: number;
+  shipped_orders: number;
   completed_orders: number;
   recent_orders: {
     order_code: string;
@@ -26,7 +26,7 @@ const DONUT_COLORS = ["#F5730C", "#B45309", "#F59E0B", "#EA580C", "#D97706"];
 const statusMeta: Record<string, { label: string; badge: string }> = {
   pending: { label: "Pending", badge: " text-amber-600" },
   processed: { label: "Diproses", badge: "text-blue-600" },
-  shipped: { label: "Diproses", badge: "text-blue-600" },
+  shipped: { label: "Dikirim", badge: "text-orange-600" },
   completed: { label: "Selesai", badge: "text-green-600" },
 };
 
@@ -71,19 +71,14 @@ export default function AdminDashboard() {
           ),
         },
         {
-          label: "Pending",
-          value: String(data.pending_orders),
-          svg: (
-            <>
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
-            </>
-          ),
-        },
-        {
           label: "Diproses",
           value: String(data.processed_orders),
           svg: <path d="M3 3v18h18M7 15l4-6 3 3 5-8" />,
+        },
+        {
+          label: "Dikirim",
+          value: String(data.shipped_orders),
+          svg: <path d="M1 3h15v13H1zM4 8h11M4 12h7" />,
         },
         {
           label: "Selesai",

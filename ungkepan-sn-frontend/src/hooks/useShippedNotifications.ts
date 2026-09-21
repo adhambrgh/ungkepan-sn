@@ -37,9 +37,9 @@ export function useShippedNotifications() {
         const apiOrders = results.flat()
         if (apiOrders.length === 0) return
 
-        const merged = localOrders.map((local) => {
+        const merged = localOrders.flatMap((local) => {
           const match = apiOrders.find((a: any) => a.order_code === local.id)
-          return match ? { ...local, status: match.status } : local
+          return match ? [{ ...local, status: match.status }] : []
         })
 
         const awaitingNow = merged.filter(isAwaitingConfirm)

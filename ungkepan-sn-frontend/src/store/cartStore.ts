@@ -56,6 +56,10 @@ interface CartStore {
   addOrder: (order: Order) => void
   updateOrderStatus: (id: string, status: Order['status']) => void
   hydrateFromServer: () => Promise<void>
+  activeOrdersCount: number
+  setActiveOrdersCount: (n: number) => void
+  buyNowItem: CartItem | null
+  setBuyNowItem: (item: CartItem | null) => void
 }
 
 const authed = () => !!useAuthStore.getState().token
@@ -150,7 +154,7 @@ export const useCartStore = create<CartStore>()(
       },
 
       clearCart: () => {
-        set({ items: [], discount: 0, discountInfo: null })
+        set({ items: [], discount: 0, discountInfo: null, buyNowItem: null })
         if (authed()) clearCartServer().catch(() => {})
       },
 
@@ -194,6 +198,18 @@ export const useCartStore = create<CartStore>()(
           orders: state.orders.map((o) => (o.id === id ? { ...o, status } : o)),
         }))
       },
+
+      setActiveOrdersCount: (n: number) => {
+        set({ activeOrdersCount: n })
+      },
+
+      setBuyNowItem: (item: CartItem | null) => {
+        set({ buyNowItem: item })
+      },
+
+      activeOrdersCount: 0,
+
+      buyNowItem: null,
 
       hydrateFromServer: async () => {
         if (!authed()) return
