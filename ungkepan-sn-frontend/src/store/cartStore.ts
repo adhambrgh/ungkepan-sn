@@ -159,16 +159,22 @@ export const useCartStore = create<CartStore>()(
       },
 
       getSubtotal: () => {
-        return get().items
+        const base = get().items
           .filter((i) => i.selected)
           .reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+        const bn = get().buyNowItem
+        const bnSub = bn ? bn.product.price * bn.quantity : 0
+        return base + bnSub
       },
 
       applyDiscount: (amount, info) => {
         set((state) => {
-          const subtotal = state.items
+          const base = state.items
             .filter((i) => i.selected)
             .reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+          const bn = state.buyNowItem
+          const bnSub = bn ? bn.product.price * bn.quantity : 0
+          const subtotal = base + bnSub
           const capped = Math.min(Math.max(amount, 0), subtotal)
           return { discount: capped, discountInfo: capped > 0 ? info ?? null : null }
         })
@@ -177,9 +183,12 @@ export const useCartStore = create<CartStore>()(
       clearDiscount: () => set({ discount: 0, discountInfo: null }),
 
       getTotal: () => {
-        const subtotal = get().items
+        const base = get().items
           .filter((i) => i.selected)
           .reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+        const bn = get().buyNowItem
+        const bnSub = bn ? bn.product.price * bn.quantity : 0
+        const subtotal = base + bnSub
         return Math.max(subtotal - get().discount, 0)
       },
 

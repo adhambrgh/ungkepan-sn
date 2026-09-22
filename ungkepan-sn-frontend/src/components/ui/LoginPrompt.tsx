@@ -33,7 +33,7 @@ export default function LoginPrompt({ open, onClose, redirect = '/', context = '
           baru bisa {context}.
         </h2>
         <p className="mt-3 text-[14.5px] text-zinc-500 leading-relaxed">
-          Biar pesananmu tercatat dan checkoutnya cepat, kamu perlu akun dulu. Gratis, kok — cuma isi email atau pakai Google.
+          Biar pesananmu tercatat dan checkoutnya cepat, kamu perlu akun dulu. Gratis, kok cuma isi email atau pakai Google.
         </p>
 
         <div className="mt-7 space-y-3">

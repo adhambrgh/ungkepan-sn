@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { ShoppingCart } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
-import { useCartStore } from "../../store/cartStore";
 import { useAuthStore } from "../../store/authStore";
 import type { Product } from "../../types";
 import QuantityPickerModal from "./QuantityPickerModal";
@@ -13,7 +11,6 @@ type Props = {
 };
 
 export default function BuyNowButton({ product, onRequireLogin, className = "" }: Props) {
-  const setBuyNowItem = useCartStore((s) => s.setBuyNowItem);
   const authToken = useAuthStore((s) => s.token);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -29,9 +26,10 @@ export default function BuyNowButton({ product, onRequireLogin, className = "" }
   };
 
   const confirm = (p: Product, qty: number) => {
-    setBuyNowItem({ product: p, quantity: qty, selected: true });
     setOpen(false);
-    navigate("/checkout");
+    navigate("/checkout", {
+      state: { buyNow: { product: p, quantity: qty, selected: true } },
+    });
   };
 
   return (

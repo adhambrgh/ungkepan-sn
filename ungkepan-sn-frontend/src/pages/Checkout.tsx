@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +25,7 @@ import {
   resolveImage,
   getAddresses,
   useCustomerPromo,
+  applyCustomerPromo,
   getOrderSnapToken,
   loadSnapScript,
   payWithSnap,
@@ -33,6 +34,7 @@ import {
 import type { PaymentMethod, UserAddress } from "../api/client";
 import LocationPicker from "../components/ui/LocationPicker";
 import PaymentSelector from "../components/ui/PaymentSelector";
+import type { CartItem } from "../types";
 
 const checkoutSchema = z.object({
   name: z.string().min(1, "Nama wajib diisi"),
@@ -74,22 +76,28 @@ type CheckoutForm = z.infer<typeof checkoutSchema>;
 export default function Checkout() {
   const {
     items,
-    getTotal,
-    getSubtotal,
     discount,
     discountInfo,
+    applyDiscount,
+    clearDiscount,
     clearCart,
     addOrder,
     updateOrderStatus,
-    buyNowItem,
-    setBuyNowItem,
   } = useCartStore();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const buyNowItem = (location.state as { buyNow?: CartItem } | null)
+    ?.buyNow ?? null;
   const selectedItems = buyNowItem
     ? [buyNowItem]
     : items.filter((i) => i.selected);
+  const selectedSubtotal = selectedItems.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0,
+  );
+  const selectedTotal = Math.max(selectedSubtotal - discount, 0);
   const authUser = useAuthStore((s) => s.user);
   const authToken = useAuthStore((s) => s.token);
-  const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const [orderId, setOrderId] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -98,6 +106,10 @@ export default function Checkout() {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [showQrisModal, setShowQrisModal] = useState(false);
   const [copiedText, setCopiedText] = useState("");
+  const [promoCode, setPromoCode] = useState("");
+  const [promoMsg, setPromoMsg] = useState("");
+  const [promoOk, setPromoOk] = useState(false);
+  const [applying, setApplying] = useState(false);
   const [lastOrder, setLastOrder] = useState<{
     orderCode: string;
     customerName: string;
@@ -133,10 +145,6 @@ export default function Checkout() {
 
   const selectedPaymentId = watch("payment");
   const selectedShipping = watch("shipping");
-
-  useEffect(() => {
-    return () => setBuyNowItem(null);
-  }, [setBuyNowItem]);
 
   const [shippingConfig, setShippingConfig] = useState<{
     store_lat: number;
@@ -247,7 +255,7 @@ export default function Checkout() {
       if (!distance || !shippingConfig) return 0;
       if (
         shippingConfig!.free_shipping_min > 0 &&
-        getTotal() >= shippingConfig!.free_shipping_min
+        selectedSubtotal >= shippingConfig!.free_shipping_min
       )
         return 0;
       return Math.round(distance * shippingConfig!.cost_per_km);
@@ -258,7 +266,7 @@ export default function Checkout() {
 
   const isFreeShipping =
     (shippingConfig?.free_shipping_min ?? 0) > 0 &&
-    getTotal() >= (shippingConfig?.free_shipping_min ?? 0);
+    selectedSubtotal >= (shippingConfig?.free_shipping_min ?? 0);
   const selectedShippingCost = selectedShipping
     ? getShippingCost(selectedShipping)
     : 0;
@@ -349,6 +357,40 @@ export default function Checkout() {
     setTimeout(() => setCopiedText(""), 2000);
   };
 
+  const applyPromo = async () => {
+    const code = promoCode.trim().toUpperCase();
+    if (!code) return;
+    if (!authToken) {
+      setPromoMsg("Masuk dulu untuk memakai kode promo");
+      setPromoOk(false);
+      return;
+    }
+    setApplying(true);
+    setPromoMsg("");
+    setPromoOk(false);
+    try {
+      const res = await applyCustomerPromo(code, selectedSubtotal);
+      applyDiscount(res.amount, {
+        code: res.code,
+        type: res.type,
+        value: res.value,
+      });
+      setPromoMsg(`Kode promo "${res.code}" berhasil diterapkan`);
+      setPromoOk(true);
+    } catch (err: unknown) {
+      setPromoMsg(err instanceof Error ? err.message : "Kode promo tidak dapat dipakai");
+      setPromoOk(false);
+    } finally {
+      setApplying(false);
+    }
+  };
+
+  const removePromo = () => {
+    clearDiscount();
+    setPromoMsg("");
+    setPromoCode("");
+  };
+
   const qrisMethod = paymentMethods.find(
     (p) => p.method === "qris" && p.is_active,
   );
@@ -400,7 +442,7 @@ export default function Checkout() {
         notes: data.notes || "",
         shipping_method: data.shipping,
         payment_method: payLabel,
-        total: getTotal(),
+        total: selectedTotal,
         discount,
         promo_code: discountInfo?.code || null,
         items: selectedItems.map((i) => ({
@@ -418,7 +460,7 @@ export default function Checkout() {
         addOrder({
           id: orderCode,
           items: [...selectedItems],
-          total: getTotal(),
+          total: selectedTotal,
           customerName: data.name,
           phone: data.phone,
           address: data.address,
@@ -429,7 +471,7 @@ export default function Checkout() {
           status: isMidtrans || isCod ? "processed" : "pending",
           createdAt: new Date().toISOString(),
         });
-      const finalTotal = getTotal();
+      const finalTotal = selectedTotal;
       const finalItems = [...selectedItems];
       const selMethod = shippingMethods.find((m) => m.value === data.shipping);
       const shippingLabel =
@@ -1027,13 +1069,13 @@ export default function Checkout() {
                   </li>
                 ))}
               </ul>
-            </div>
+</div>
 
-            <div className="mt-5 pt-5 border-t border-dashed border-black/10 space-y-2.5 text-sm">
+            <div className="mt-5 pt-5 border-t border-black/10 space-y-2.5 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500">Subtotal Produk</span>
                 <span className="font-semibold text-zinc-800">
-                  Rp {getSubtotal().toLocaleString("id-ID")}
+                  Rp {selectedSubtotal.toLocaleString("id-ID")}
                 </span>
               </div>
               {discount > 0 && (
@@ -1066,10 +1108,58 @@ export default function Checkout() {
               <span className="text-sm font-bold text-zinc-800">
                 Total Tagihan :
               </span>
-              <span className="text-2xl font-extrabold text-brand-600">
-                Rp {formatRupiah(getTotal() + selectedShippingCost)}
+<span className="text-2xl font-extrabold text-brand-600">
+                Rp {formatRupiah(selectedTotal + selectedShippingCost)}
               </span>
             </div>
+
+            <div className="mt-5 pt-5 border-t border-dashed border-black/10">
+              {discount > 0 && (
+                <div className="flex items-center justify-between bg-brand-50 border border-brand-100 rounded-xl px-3 py-2.5 mb-3">
+                  <p className="text-xs font-semibold text-brand-600 truncate">
+                    Kode promo {discountInfo?.code} diterapkan
+                  </p>
+                  <button
+                    type="button"
+                    onClick={removePromo}
+                    className="px-3 py-1.5 rounded-lg bg-[#EA580C] hover:bg-[#d94e0b] text-white text-xs font-semibold transition-colors shrink-0"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <input
+                  value={promoCode}
+                  onChange={(e) => {
+                    setPromoCode(e.target.value);
+                    setPromoMsg("");
+                  }}
+                  placeholder={
+                    discount > 0 ? "Ganti kode promo" : "Masukkan kode promo"
+                  }
+                  className="flex-1 min-w-0 rounded-xl border border-black/10 px-3 py-2 text-sm outline-none focus:border-brand-500 transition-colors"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") applyPromo();
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={applyPromo}
+                  disabled={applying}
+                  className="px-4 py-2 rounded-xl bg-[#EA580C] hover:bg-[#d94e0b] text-white text-sm font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {applying ? "Memeriksa..." : "Pakai"}
+                </button>
+              </div>
+              {promoMsg && (
+                <p
+                  className={`mt-2 text-xs ${promoOk ? "text-green-600" : "text-red-500"}`}
+                >
+                  {promoMsg}
+                </p>
+              )}
+</div>
 
             <button
               type="submit"
