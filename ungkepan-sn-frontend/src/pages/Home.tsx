@@ -399,7 +399,7 @@ export default function Home() {
       <section className="relative text-white overflow-hidden min-h-screen flex items-center">
         {/* Background slideshow */}
         <div className="absolute inset-0">
-          {["/hero.png"].map((img: string, i: number) => (
+          {((hero?.images && Array.isArray(hero.images) && hero.images.length) ? hero.images : ["/hero.png"]).map((img: string, i: number) => (
             <div
               key={i}
               className={`absolute inset-0 transition-opacity duration-1000 ${
@@ -421,6 +421,11 @@ export default function Home() {
             className="max-w-2xl animate-fade-in"
             style={{ animationDelay: "0.1s" }}
           >
+            {hero?.badge && (
+              <span className="inline-flex items-center px-3 py-1 text-sm font-semibold bg-white/20 text-white rounded-full mb-4 backdrop-blur-sm">
+                {hero.badge}
+              </span>
+            )}
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4">
               {hero?.headingStart || "Aneka Olahan Frozen & Minuman"}{" "}
               <br className="hidden md:block" />
@@ -764,29 +769,29 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              {
-                icon: "Package",
-                title: "Bahan Segar",
-                desc: "Bahan pilihan kualitas terbaik, langsung dari pasar tradisional",
-              },
-              {
-                icon: "Clock",
-                title: "Pesanan Baru",
-                desc: "Kami buat setelah kamu pesan, bukan stok lama",
-              },
-              {
-                icon: "ShieldCheck",
-                title: "Bersih & Higienis",
-                desc: "Dapur bersih standar rumahan, pake sarung tangan",
-              },
-              {
-                icon: "Leaf",
-                title: "Resep Turun Temurun",
-                desc: "Rasa autentik yang udah teruji dari generasi ke generasi",
-              },
-            ].map((item, i) => {
-              const Icon = iconMap[item.icon] || Heart;
+{(hero?.values && Array.isArray(hero.values) && hero.values.length ? hero.values : [
+               {
+                 icon: "Package",
+                 title: "Bahan Segar",
+                 desc: "Bahan pilihan kualitas terbaik, langsung dari pasar tradisional",
+               },
+               {
+                 icon: "Clock",
+                 title: "Pesanan Baru",
+                 desc: "Kami buat setelah kamu pesan, bukan stok lama",
+               },
+               {
+                 icon: "ShieldCheck",
+                 title: "Bersih & Higienis",
+                 desc: "Dapur bersih standar rumahan, pake sarung tangan",
+               },
+               {
+                 icon: "Leaf",
+                 title: "Resep Turun Temurun",
+                 desc: "Rasa autentik yang udah teruji dari generasi ke generasi",
+               },
+             ]).map((item: any, i: number) => {
+               const Icon = iconMap[item.icon] || Heart;
               return (
                 <div
                   key={i}
