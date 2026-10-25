@@ -47,8 +47,8 @@ export default function Footer() {
               <li><Link to="/" className="hover:text-brand-400 transition-colors">Beranda</Link></li>
               <li><Link to="/products" className="hover:text-brand-400 transition-colors">Semua Produk</Link></li>
               <li><Link to="/about" className="hover:text-brand-400 transition-colors">Tentang Kami</Link></li>
-              <li><Link to="/favorit" className="hover:text-brand-400 transition-colors">Favorit Saya</Link></li>
               <li><Link to="/contact" className="hover:text-brand-400 transition-colors">Kontak</Link></li>
+              <li><Link to="/favorit" className="hover:text-brand-400 transition-colors">Favorit Saya</Link></li>
               <li><Link to="/profil" className="hover:text-brand-400 transition-colors">Profil</Link></li>
             </ul>
           </div>
