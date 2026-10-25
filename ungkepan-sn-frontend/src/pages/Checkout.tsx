@@ -86,8 +86,8 @@ export default function Checkout() {
   } = useCartStore();
   const navigate = useNavigate();
   const location = useLocation();
-  const buyNowItem = (location.state as { buyNow?: CartItem } | null)
-    ?.buyNow ?? null;
+  const buyNowItem =
+    (location.state as { buyNow?: CartItem } | null)?.buyNow ?? null;
   const selectedItems = buyNowItem
     ? [buyNowItem]
     : items.filter((i) => i.selected);
@@ -378,7 +378,9 @@ export default function Checkout() {
       setPromoMsg(`Kode promo "${res.code}" berhasil diterapkan`);
       setPromoOk(true);
     } catch (err: unknown) {
-      setPromoMsg(err instanceof Error ? err.message : "Kode promo tidak dapat dipakai");
+      setPromoMsg(
+        err instanceof Error ? err.message : "Kode promo tidak dapat dipakai",
+      );
       setPromoOk(false);
     } finally {
       setApplying(false);
@@ -626,21 +628,26 @@ export default function Checkout() {
             )}
           </div>
 
-          <div className="border-t-2 border-zinc-800 pt-2 flex justify-between font-bold text-zinc-800">
-            <span>TOTAL</span>
-            <span>
+          {lastOrder!.shippingCost > 0 && (
+            <div className="flex justify-between text-zinc-600 mt-1">
+              <span className="text-xs text-zinc-500 uppercase tracking-wider">
+                Ongkir
+              </span>
+              <span className="text-zinc-800">
+                RP {lastOrder!.shippingCost.toLocaleString("id-ID")}
+              </span>
+            </div>
+          )}
+
+          <div className="border-t-2 border-zinc-800 pt-3 mt-3 flex justify-between font-bold text-zinc-800">
+            <span className="text-base">TOTAL TAGIHAN</span>
+            <span className="text-2xl">
               Rp{" "}
               {(
                 lastOrder!.total + (lastOrder!.shippingCost || 0)
               ).toLocaleString("id-ID")}
             </span>
           </div>
-          {lastOrder!.shippingCost > 0 && (
-            <div className="flex justify-between text-xs text-zinc-500 mt-1">
-              <span>Termasuk ongkir</span>
-              <span>Rp {lastOrder!.shippingCost.toLocaleString("id-ID")}</span>
-            </div>
-          )}
 
           <div className="mt-3 pt-3 border-t border-dashed border-zinc-200 text-xs text-zinc-500 space-y-0.5">
             <p>Pembayaran: {lastOrder!.payment}</p>
@@ -1069,7 +1076,7 @@ export default function Checkout() {
                   </li>
                 ))}
               </ul>
-</div>
+            </div>
 
             <div className="mt-5 pt-5 border-t border-black/10 space-y-2.5 text-sm">
               <div className="flex items-center justify-between">
@@ -1108,7 +1115,7 @@ export default function Checkout() {
               <span className="text-sm font-bold text-zinc-800">
                 Total Tagihan :
               </span>
-<span className="text-2xl font-extrabold text-brand-600">
+              <span className="text-2xl font-extrabold text-brand-600">
                 Rp {formatRupiah(selectedTotal + selectedShippingCost)}
               </span>
             </div>
@@ -1159,7 +1166,7 @@ export default function Checkout() {
                   {promoMsg}
                 </p>
               )}
-</div>
+            </div>
 
             <button
               type="submit"
