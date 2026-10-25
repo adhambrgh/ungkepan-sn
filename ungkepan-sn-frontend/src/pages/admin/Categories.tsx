@@ -4,6 +4,8 @@ import { adminGetCategories, adminCreateCategory, adminUpdateCategory, adminDele
 import Toast from '../../components/ui/Toast'
 import ConfirmDeleteModal from '../../components/ui/ConfirmDeleteModal'
 import SuccessModal from '../../components/ui/SuccessModal'
+import { usePagination } from '../../hooks/usePagination'
+import { PaginationControls } from '../../components/PaginationControls'
 
 interface Category {
   id: number
@@ -30,13 +32,24 @@ const ICONS = [
 
 type ImageMode = 'url' | 'upload'
 
+const ITEMS_PER_PAGE = 10
+
 export default function AdminCategories() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' })
   const [success, setSuccess] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
 
-  // Modal state
+  const { currentPageClamped, totalPages, pageData, goPrev, goNext } = usePagination<Category>(
+    categories.filter((c) => {
+      const q = search.trim().toLowerCase()
+      return !q || c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q)
+    }),
+    ITEMS_PER_PAGE,
+    [search]
+  )
+
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add')
   const [editingId, setEditingId] = useState<number | null>(null)
@@ -49,7 +62,6 @@ export default function AdminCategories() {
   const [imagePreview, setImagePreview] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
-  // Confirm delete
   const [confirmDelete, setConfirmDelete] = useState<{ id: number; name: string } | null>(null)
 
   const loadCategories = () => {
@@ -192,7 +204,7 @@ export default function AdminCategories() {
               <><UploadSimple size={24} className="text-zinc-300" /><p className="text-xs text-zinc-400">Klik pilih file</p></>
             )}
           </div>
-          {file && <p className="text-xs text-zinc-500 mt-1">{file.name}</p>}
+          {file && <p className="text-xs text-zinc-500 mt-1">{file?.name}</p>}
         </div>
       )}
     </div>
@@ -220,8 +232,11 @@ export default function AdminCategories() {
       />
 
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <h1 className="text-3xl sm:text-[34px] font-extrabold tracking-tight">Kategori</h1>
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl sm:text-[34px] font-extrabold tracking-tight">Kategori</h1>
+          <p className="mt-1 text-sm text-zinc-500">{categories.length} kategori</p>
+        </div>
         <button type="button" onClick={openAdd}
           className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-[8px] transition-colors">
           <Plus size={16} weight="bold" />
@@ -229,74 +244,107 @@ export default function AdminCategories() {
         </button>
       </div>
 
-      {/* Table */}
+      {/* Search */}
+      <div className="relative max-w-md">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a8a69c" strokeWidth="2" className="absolute left-4 top-1/2 -translate-y-1/2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+        <input
+          id="searchCategory"
+          type="search"
+          placeholder="Cari kategori..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full rounded-xl border border-black/10 bg-white pl-11 pr-4 py-3 text-sm outline-none focus:border-[#F5730C] transition-colors placeholder:text-zinc-400"
+        />
+      </div>
+
       {loading ? (
         <div className="flex items-center justify-center min-h-[40vh] text-zinc-400">Memuat...</div>
       ) : categories.length === 0 ? (
         <div className="text-center py-12 text-zinc-400">Belum ada kategori</div>
       ) : (
-        <>
-        {/* Kartu (mobile) */}
-        <div className="md:hidden space-y-3">
-          {categories.map((c) => (
-            <div key={c.id} className="bg-white rounded-2xl border border-black/5 p-4 flex items-center gap-3">
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-zinc-800">{c.name}</p>
-                <p className="text-sm text-zinc-400 truncate">{c.slug}</p>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <button type="button" aria-label={`Edit ${c.name}`}
-                  onClick={() => startEdit(c)}
-                  className="w-10 h-10 rounded-lg border border-brand-500/40 text-brand-500 flex items-center justify-center hover:bg-brand-50 transition-colors">
-                  <Pencil size={16} weight="bold" />
-                </button>
-                <button type="button" aria-label={`Hapus ${c.name}`}
-                  onClick={() => handleDelete(c.id, c.name)}
-                  className="w-10 h-10 rounded-lg border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition-colors">
-                  <Trash size={16} weight="bold" />
-                </button>
-              </div>
+        <div className="md:block">
+          <div className="md:hidden">
+            <div 
+              className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"
+              style={{ scrollSnapType: 'x mandatory' }}
+            >
+              {pageData.map((c) => (
+                <div key={c.id} className="flex-shrink-0 w-[280px] snap-start bg-white rounded-2xl border border-black/5 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-zinc-800">{c.name}</p>
+                      <p className="text-sm text-zinc-400 truncate">{c.slug}</p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button type="button" aria-label={`Edit ${c.name}`}
+                        onClick={() => startEdit(c)}
+                        className="w-10 h-10 rounded-lg border border-brand-500/40 text-brand-500 flex items-center justify-center hover:bg-brand-50 transition-colors">
+                        <Pencil size={16} weight="bold" />
+                      </button>
+                      <button type="button" aria-label={`Hapus ${c.name}`}
+                        onClick={() => handleDelete(c.id, c.name)}
+                        className="w-10 h-10 rounded-lg border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition-colors">
+                        <Trash size={16} weight="bold" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+            <PaginationControls
+              currentPage={currentPageClamped}
+              totalPages={totalPages}
+              onPrev={goPrev}
+              onNext={goNext}
+            />
+          </div>
 
-        {/* Tabel (desktop) */}
-        <div className="hidden md:block bg-white rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs font-bold text-zinc-400 uppercase tracking-wide bg-black/[0.02] border-b border-black/5">
-                  <th className="px-6 py-4">Nama</th>
-                  <th className="px-6 py-4">Slug</th>
-                  <th className="px-6 py-4 text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/5">
-                {categories.map((c) => (
-                  <tr key={c.id} className="hover:bg-black/[0.02] transition-colors">
-                    <td className="px-6 py-5 font-bold">{c.name}</td>
-                    <td className="px-6 py-5 text-zinc-400">{c.slug}</td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center justify-end gap-2">
-                        <button type="button" aria-label={`Edit ${c.name}`}
-                          onClick={() => startEdit(c)}
-                          className="w-8 h-8 rounded-lg border border-brand-500/40 text-brand-500 flex items-center justify-center hover:bg-brand-50 transition-colors">
-                          <Pencil size={14} weight="bold" />
-                        </button>
-                        <button type="button" aria-label={`Hapus ${c.name}`}
-                          onClick={() => handleDelete(c.id, c.name)}
-                          className="w-8 h-8 rounded-lg border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition-colors">
-                          <Trash size={14} weight="bold" />
-                        </button>
-                      </div>
-                    </td>
+          {/* Tabel (desktop) */}
+          <div className="hidden md:block bg-white rounded-2xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs font-bold text-zinc-400 uppercase tracking-wide bg-black/[0.02] border-b border-black/5">
+                    <th className="px-6 py-4">Nama</th>
+                    <th className="px-6 py-4">Slug</th>
+                    <th className="px-6 py-4 text-right">Aksi</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-black/5">
+                  {pageData.map((c) => (
+                    <tr key={c.id}>
+                      <td className="px-6 py-5 font-bold">{c.name}</td>
+                      <td className="px-6 py-5 text-zinc-400">{c.slug}</td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center justify-end gap-2">
+                          <button type="button" aria-label={`Edit ${c.name}`}
+                            onClick={() => startEdit(c)}
+                            className="w-8 h-8 rounded-lg border border-brand-500/40 text-brand-500 flex items-center justify-center hover:bg-brand-50 transition-colors">
+                            <Pencil size={14} weight="bold" />
+                          </button>
+                          <button type="button" aria-label={`Hapus ${c.name}`}
+                            onClick={() => handleDelete(c.id, c.name)}
+                            className="w-8 h-8 rounded-lg border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition-colors">
+                            <Trash size={14} weight="bold" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex items-center justify-between px-6 py-3 border-t border-black/5 bg-white">
+              <div className="text-sm text-zinc-500" />
+              <PaginationControls
+                currentPage={currentPageClamped}
+                totalPages={totalPages}
+                onPrev={goPrev}
+                onNext={goNext}
+              />
+            </div>
           </div>
         </div>
-        </>
       )}
 
       {/* Tambah/Edit Kategori modal */}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Support\Sanitize;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -30,7 +31,7 @@ class CustomerAuthController extends Controller
             return response()->json(['error' => 'Nama wajib diisi'], 422);
         }
 
-        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return response()->json(['error' => 'Format email tidak valid'], 422);
         }
 
@@ -64,21 +65,22 @@ class CustomerAuthController extends Controller
 
     public function login(Request $request)
     {
-        $email = strtolower(Sanitize::text($request->input('email', ''), 191));
-        $password = (string) $request->input('password', '');
+        // Validasi: ubah 'email required|email' menjadi 'required|string'
+        $credentials = $request->validate([
+            'email' => ['required', 'string'],
+            'password' => ['required', 'string'],
+        ]);
 
-        if ($email === '' || $password === '') {
-            return response()->json(['error' => 'Email dan password wajib diisi'], 400);
-        }
+        // Cari user: email DAN/ATAU name
+        $user = User::where('email', $credentials['email'])
+            ->orWhere('name', $credentials['email'])
+            ->first();
 
-        $user = User::where('email', $email)->first();
-
-        if (! $user) {
-            return response()->json(['error' => 'Email belum terdaftar. Silakan daftar dulu.'], 404);
-        }
-
-        if (! $user->password || ! password_verify($password, $user->password)) {
-            return response()->json(['error' => 'Email atau password salah'], 401);
+        // Cek password
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            return response()->json([
+                'error' => 'Email, nama, atau password salah'
+            ], 401);
         }
 
         return response()->json([
@@ -103,7 +105,7 @@ class CustomerAuthController extends Controller
             return response()->json(['error' => 'Token Google kosong'], 400);
         }
 
-        if (! $clientId) {
+        if (!$clientId) {
             return response()->json(['error' => 'Google login belum dikonfigurasi'], 503);
         }
 
@@ -112,7 +114,7 @@ class CustomerAuthController extends Controller
                 'id_token' => $credential,
             ]);
 
-            if (! $response->ok()) {
+            if (!$response->ok()) {
                 $response = Http::timeout(10)->get('https://oauth2.googleapis.com/tokeninfo', [
                     'access_token' => $credential,
                 ]);
@@ -121,7 +123,7 @@ class CustomerAuthController extends Controller
             return response()->json(['error' => 'Gagal memverifikasi Google'], 502);
         }
 
-        if (! $response->ok()) {
+        if (!$response->ok()) {
             return response()->json(['error' => 'Token Google tidak valid'], 401);
         }
 

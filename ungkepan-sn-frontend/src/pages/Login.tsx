@@ -116,14 +116,14 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="mt-8 max-w-sm">
             <div>
-              <label htmlFor="login-email" className="block text-sm font-bold text-zinc-700">Email</label>
+              <label htmlFor="login-email" className="block text-sm font-bold text-zinc-700">Email atau nama</label>
               <input
                 id="login-email"
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-2 w-full rounded-xl border border-black/10 bg-white px-4 py-3.5 text-sm outline-none focus:border-brand-500 transition-colors placeholder:text-zinc-400"
-                placeholder="nama@email.com"
+                placeholder="nama@email.com / nama"
                 autoComplete="username"
                 required
               />

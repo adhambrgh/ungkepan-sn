@@ -38,13 +38,11 @@ Route::middleware('throttle:api')->group(function () {
     Route::get('/orders.php', [OrderController::class, 'index']);
     Route::post('/orders.php', [OrderController::class, 'store']);
     Route::post('/orders-snap-token.php', [OrderController::class, 'getSnapToken']);
-    Route::delete('/orders-snap-token.php', [OrderController::class, 'destroyPendingOrder']);
     Route::post('/orders-callback.php', [OrderController::class, 'handleCallback']);
     Route::get('/payments.php', [PaymentController::class, 'index']);
     Route::get('/reviews.php', [ReviewController::class, 'index']);
     Route::post('/reviews.php', [ReviewController::class, 'store']);
     Route::get('/stock-snapshot.php', [StockStreamController::class, 'snapshot']);
-    Route::any('/stock-stream.php', [StockStreamController::class, 'snapshot']);
     Route::get('/site_content.php', [SiteContentController::class, 'show']);
     Route::get('/promos.php', [PromoController::class, 'index']);
 });
