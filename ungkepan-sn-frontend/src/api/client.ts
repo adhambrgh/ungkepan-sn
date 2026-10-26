@@ -783,10 +783,12 @@ export async function getProductReviews(productId: string): Promise<Review[]> {
   return []
 }
 
-export async function getTestimonials(): Promise<Review[]> {
+export async function getTestimonials(featuredOnly: boolean = false): Promise<Review[]> {
   if (await checkApi()) {
     try {
-      return request<Review[]>(`/reviews.php?testimonials=1`)
+      const params = new URLSearchParams({ testimonials: '1' });
+      if (featuredOnly) params.set('featured', '1');
+      return request<Review[]>(`/reviews.php?${params.toString()}`)
     } catch {
       return []
     }
@@ -812,11 +814,15 @@ export async function adminGetReviews(): Promise<Review[]> {
   return Array.isArray(res) ? res : (res.data ?? [])
 }
 
-export async function adminToggleReview(id: number, is_approved: boolean) {
+export async function adminToggleReview(
+  id: number,
+  is_approved: boolean,
+  is_featured?: boolean,
+) {
   return request<{ success: boolean }>('/admin/reviews.php', {
     method: 'PUT',
     headers: authHeaders(),
-    body: JSON.stringify({ id, is_approved }),
+    body: JSON.stringify({ id, is_approved, is_featured }),
   })
 }
 

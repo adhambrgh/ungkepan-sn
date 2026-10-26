@@ -251,6 +251,7 @@ export default function Checkout() {
 
   const getShippingCost = (methodValue: string): number => {
     if (!methodValue) return 0;
+    if (methodValue === "ambil" || methodValue === "pickup" || methodValue === "direct") return 0;
     if (methodValue === "lokal") {
       if (!distance || !shippingConfig) return 0;
       if (

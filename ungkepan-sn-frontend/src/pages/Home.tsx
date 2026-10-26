@@ -166,7 +166,7 @@ export default function Home() {
     getCategories().then(setCategories);
     getFeaturedProducts().then(setFeaturedProducts);
     getProducts().then(setAllProducts);
-    getTestimonials().then(setTestimonials);
+    getTestimonials(true).then(setTestimonials);
     getSiteContent("hero")
       .then((data) => {
         setHero(data);

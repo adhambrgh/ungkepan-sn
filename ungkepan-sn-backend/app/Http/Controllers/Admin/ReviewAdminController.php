@@ -49,8 +49,19 @@ class ReviewAdminController extends Controller
         }
 
         if (array_key_exists('is_approved', $request->all())) {
-            DB::table('reviews')->where('id', $id)
-                ->update(['is_approved' => $request->input('is_approved') ? 1 : 0]);
+            $isApproved = $request->input('is_approved') ? 1 : 0;
+            DB::table('reviews')->where('id', $id)->update([
+                'is_approved' => $isApproved,
+                'is_featured' => $isApproved,
+            ]);
+
+            return response()->json(['success' => true]);
+        }
+
+        if ($request->has('is_featured')) {
+            DB::table('reviews')->where('id', $id)->update([
+                'is_featured' => $request->input('is_featured') ? 1 : 0,
+            ]);
 
             return response()->json(['success' => true]);
         }
