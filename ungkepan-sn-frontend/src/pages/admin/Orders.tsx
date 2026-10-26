@@ -317,14 +317,6 @@ export default function AdminOrders() {
                     </div>
 
                     <div className="border-t border-zinc-100 pt-3 flex justify-between items-center">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleStatus(o.id, nextStatus[o.status])}
-                          className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-[8px] transition-colors"
-                        >
-                          Hapus
-                        </button>
-                      </div>
                       <p className="font-bold text-brand-600 text-lg shrink-0">
                         Rp {o.total.toLocaleString("id-ID")}
                       </p>
@@ -429,13 +421,6 @@ export default function AdminOrders() {
                             Ubah ke {statusLabels[nextStatus[o.status]]}
                           </button>
                         )}
-                        <button
-                          onClick={() => handleDelete(o.id, o.order_code)}
-                          className="inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2.5 text-sm font-semibold text-red-500 border-2 border-red-200 rounded-[8px] hover:bg-red-50 transition-colors"
-                        >
-                          <Trash size={16} weight="bold" />
-                          Hapus
-                        </button>
                       </div>
                       <p className="font-bold text-brand-600 text-lg shrink-0">
                         Rp {o.total.toLocaleString("id-ID")}
