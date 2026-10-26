@@ -249,99 +249,18 @@ export default function Home() {
     }));
   }, [authUser]);
 
-  // Fallback testimonials untuk padding jika data kurang
-  const fallbackTestimonials = [
-    {
-      id: "f1",
-      name: "Andi Wijaya",
-      rating: 5,
-      review: "Makanan enak banget, bumbunya meresap sampe ke tulang!",
-    },
-    {
-      id: "f2",
-      name: "Sari Dewi",
-      rating: 5,
-      review:
-        "Pesan sore, malam udah sampai. Packing rapi, es batu masih beku.",
-    },
-    {
-      id: "f3",
-      name: "Budi Santoso",
-      rating: 4,
-      review: "Sudah langganan 1 tahun, kualitas konsisten. Harga bersahabat.",
-    },
-    {
-      id: "f4",
-      name: "Maya Putri",
-      rating: 5,
-      review:
-        "Ayam ungkep favoritku, daging empuk banget. Nasi 3 porsi habis sendirian.",
-    },
-    {
-      id: "f5",
-      name: "Rizky Maulana",
-      rating: 5,
-      review:
-        "Ikan bakar wangi asap, sambel terasinya nendang. Recommended deh!",
-    },
-    {
-      id: "f6",
-      name: "Dina Permata",
-      rating: 4,
-      review:
-        "Delivery cepat, admin ramah. Minta sambel extra diikutin no ribet.",
-    },
-    {
-      id: "f7",
-      name: "Eko Prasetyo",
-      rating: 5,
-      review:
-        "Pesen buat arisan kantor, temen-temen pada suka. Bikin ketagihan!",
-    },
-    {
-      id: "f8",
-      name: "Lina Marlina",
-      rating: 5,
-      review:
-        "Fresh banget, baru masak kayaknya pas dikirim. Bakal order lagi.",
-    },
-    {
-      id: "f9",
-      name: "Tommy Gunawan",
-      rating: 4,
-      review:
-        "Kualitas premium tapi harga masuk kantong. Value for money banget.",
-    },
-    {
-      id: "f10",
-      name: "Rina Wulandari",
-      rating: 5,
-      review:
-        "Udah 5x belanja disini, belum pernah nyesel. Consistency is key!",
-    },
-  ];
-
   // Helper: render marquee cards (duplicated for seamless loop)
   const renderMarqueeCards = (
     data: typeof testimonials,
     row: "top" | "bottom",
   ) => {
-    const base = [...data];
-    // Tambah fallback hanya jika data nyata kurang dari 8 (biar marquee tetap rapat)
-    if (base.length < 8) {
-      while (base.length < 8) {
-        const fb =
-          fallbackTestimonials[base.length % fallbackTestimonials.length];
-        base.push({ ...fb, id: `${fb.id}-${base.length}` } as any);
-      }
-    }
-    // Tampilkan SEMUA testimoni asli, tanpa dipangkas
-    const cards = base;
+    if (data.length === 0) return [];
+    // Duplicate real testimonials only for seamless marquee loop
     return [
-      ...cards.map((t, i) => (
+      ...data.map((t, i) => (
         <TestimonialCard key={t.id} testimonial={t} index={i} />
       )),
-      ...cards.map((t, i) => (
+      ...data.map((t, i) => (
         <TestimonialCard key={`${t.id}-dup`} testimonial={t} index={i} />
       )),
     ];
@@ -399,7 +318,10 @@ export default function Home() {
       <section className="relative text-white overflow-hidden min-h-screen flex items-center">
         {/* Background slideshow */}
         <div className="absolute inset-0">
-          {((hero?.images && Array.isArray(hero.images) && hero.images.length) ? hero.images : ["/hero.png"]).map((img: string, i: number) => (
+          {(hero?.images && Array.isArray(hero.images) && hero.images.length
+            ? hero.images
+            : ["/hero.png"]
+          ).map((img: string, i: number) => (
             <div
               key={i}
               className={`absolute inset-0 transition-opacity duration-1000 ${
@@ -769,29 +691,32 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-{(hero?.values && Array.isArray(hero.values) && hero.values.length ? hero.values : [
-               {
-                 icon: "Package",
-                 title: "Bahan Segar",
-                 desc: "Bahan pilihan kualitas terbaik, langsung dari pasar tradisional",
-               },
-               {
-                 icon: "Clock",
-                 title: "Pesanan Baru",
-                 desc: "Kami buat setelah kamu pesan, bukan stok lama",
-               },
-               {
-                 icon: "ShieldCheck",
-                 title: "Bersih & Higienis",
-                 desc: "Dapur bersih standar rumahan, pake sarung tangan",
-               },
-               {
-                 icon: "Leaf",
-                 title: "Resep Turun Temurun",
-                 desc: "Rasa autentik yang udah teruji dari generasi ke generasi",
-               },
-             ]).map((item: any, i: number) => {
-               const Icon = iconMap[item.icon] || Heart;
+            {(hero?.values && Array.isArray(hero.values) && hero.values.length
+              ? hero.values
+              : [
+                  {
+                    icon: "Package",
+                    title: "Bahan Segar",
+                    desc: "Bahan pilihan kualitas terbaik, langsung dari pasar tradisional",
+                  },
+                  {
+                    icon: "Clock",
+                    title: "Pesanan Baru",
+                    desc: "Kami buat setelah kamu pesan, bukan stok lama",
+                  },
+                  {
+                    icon: "ShieldCheck",
+                    title: "Bersih & Higienis",
+                    desc: "Dapur bersih standar rumahan, pake sarung tangan",
+                  },
+                  {
+                    icon: "Leaf",
+                    title: "Resep Turun Temurun",
+                    desc: "Rasa autentik yang udah teruji dari generasi ke generasi",
+                  },
+                ]
+            ).map((item: any, i: number) => {
+              const Icon = iconMap[item.icon] || Heart;
               return (
                 <div
                   key={i}
