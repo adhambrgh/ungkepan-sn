@@ -670,6 +670,13 @@ export async function adminGetDashboard() {
   return request<any>('/admin/dashboard.php', { headers: authHeaders() })
 }
 
+export async function adminRefreshDashboard() {
+  return request<{ success: boolean }>('/admin/dashboard-refresh.php', {
+    method: 'POST',
+    headers: authHeaders(),
+  })
+}
+
 export async function adminGetDashboardDetail() {
   return request<any>('/admin/dashboard-detail.php', { headers: authHeaders() })
 }

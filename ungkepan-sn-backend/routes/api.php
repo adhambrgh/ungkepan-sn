@@ -107,6 +107,7 @@ Route::post('/admin/login.php', [AuthController::class, 'login']);
 
 Route::middleware(['admin.auth', 'throttle:api'])->group(function () {
     Route::get('/admin/dashboard.php', [DashboardController::class, 'index']);
+    Route::post('/admin/dashboard-refresh.php', [DashboardController::class, 'refresh']);
     Route::get('/admin/dashboard-detail.php', [DashboardController::class, 'detail']);
 
     Route::match(['get', 'post', 'put', 'delete'], '/admin/products.php', [ProductAdminController::class, 'handle']);

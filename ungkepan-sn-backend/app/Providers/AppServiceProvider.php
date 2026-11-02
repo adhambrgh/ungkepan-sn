@@ -2,9 +2,16 @@
 
 namespace App\Providers;
 
+use App\Events\DashboardNeedsRefresh;
+use App\Listeners\RefreshDashboardCache;
+use App\Models\Category;
+use App\Models\Order;
+use App\Models\Product;
+use App\Observers\DashboardObserver;
 use App\Support\MidtransService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,6 +33,14 @@ class AppServiceProvider extends ServiceProvider
         MidtransService::configure();
 
         $this->configureRateLimiting();
+
+        // Register event listeners
+        Event::listen(DashboardNeedsRefresh::class, RefreshDashboardCache::class);
+
+        // Register observers
+        Order::observe(DashboardObserver::class);
+        Product::observe(DashboardObserver::class);
+        Category::observe(DashboardObserver::class);
     }
 
     private function configureRateLimiting(): void

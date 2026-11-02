@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { adminGetDashboard } from "../../api/client";
+import { adminGetDashboard, adminRefreshDashboard } from "../../api/client";
 
 interface DashboardData {
   total_products: number;
@@ -95,23 +95,40 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl sm:text-[34px] font-extrabold tracking-tight text-zinc-800">
-            Dashboard
-          </h1>
-          <p className="mt-1 text-sm text-zinc-500">
-            Dashboard admin toko Ungkepan SN
-          </p>
-        </div>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl sm:text-[34px] font-extrabold tracking-tight text-zinc-800">
+              Dashboard
+            </h1>
+            <p className="mt-1 text-sm text-zinc-500">
+              Dashboard admin toko Ungkepan SN
+            </p>
+          </div>
 
-        <Link
-          to="/admin/dashboard/print"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 transition-colors shrink-0"
-        >
-          Cetak Laporan
-        </Link>
-      </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={async () => {
+                try {
+                  await adminRefreshDashboard();
+                  const fresh = await adminGetDashboard();
+                  setData(fresh);
+                } catch (e) {
+                  setError((e as Error).message);
+                }
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-zinc-200 text-zinc-700 text-sm font-semibold hover:bg-zinc-50 transition-colors"
+            >
+              Refresh
+            </button>
+
+            <Link
+              to="/admin/dashboard/print"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 transition-colors"
+            >
+              Cetak Laporan
+            </Link>
+          </div>
+        </div>
 
       {error && (
         <div className="rounded-2xl bg-red-50 border border-red-100 px-5 py-3.5 text-sm font-semibold text-red-700">
