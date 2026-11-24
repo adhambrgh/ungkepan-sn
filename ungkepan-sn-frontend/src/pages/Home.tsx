@@ -720,10 +720,10 @@ export default function Home() {
               return (
                 <div
                   key={i}
-                  className="text-center p-6 rounded-2xl hover:-translate-y-1 transition-all duration-300 animate-on-scroll"
+                  className="group relative text-center p-6 rounded-2xl cursor-default transition-transform duration-300 ease-out will-change-transform hover:-translate-y-1 animate-on-scroll after:absolute after:left-1/2 after:bottom-0 after:h-0.5 after:w-0 after:-translate-x-1/2 after:bg-brand-500 after:transition-all after:duration-300 hover:after:w-full"
                   style={{ transitionDelay: `${i * 0.1}s` }}
                 >
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-brand-100 text-brand-600 mb-4">
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-brand-100 text-brand-600 mb-4 transition-transform duration-300 ease-out group-hover:scale-110 group-hover:bg-brand-200">
                     <Icon size={28} weight="fill" />
                   </div>
                   <h3 className="font-bold text-zinc-800 mb-2">{item.title}</h3>
