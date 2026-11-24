@@ -833,6 +833,14 @@ export async function adminToggleReview(
   })
 }
 
+export async function adminFeatureReview(id: number, featured: boolean) {
+  return request<{ success: boolean }>('/admin/reviews.php', {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify({ id, is_featured: featured }),
+  })
+}
+
 export async function adminDeleteReview(id: number) {
   return request<{ success: boolean }>(`/admin/reviews.php?id=${id}`, {
     method: 'DELETE',

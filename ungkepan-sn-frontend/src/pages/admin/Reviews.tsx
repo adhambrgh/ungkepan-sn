@@ -9,6 +9,7 @@ import {
 import {
   adminGetReviews,
   adminToggleReview,
+  adminFeatureReview,
   adminDeleteReview,
   getCategories,
 } from "../../api/client";
@@ -48,6 +49,10 @@ export default function AdminReviews() {
   const [success, setSuccess] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
   const [catFilter, setCatFilter] = useState("");
+  // ── BARU ──────────────────────────────────────────────
+  const [featuredCount, setFeaturedCount] = useState(0);
+  const FEATURED_LIMIT = 10;
+  // ──────────────────────────────────────────────────────
 
   const fetchReviews = () => {
     setLoading(true);
@@ -68,6 +73,13 @@ export default function AdminReviews() {
             created_at: r.created_at,
           })),
         );
+        // ── BARU ──────────────────────────────────────
+        const featured = (revs as any[]).filter(
+          (r) =>
+            r.is_approved === 1 && r.is_featured === 1 && r.product_id === null,
+        ).length;
+        setFeaturedCount(featured);
+        // ───────────────────────────────────────────────
         setCategories(
           cats.map((c: any) => ({ id: Number(c.id), name: c.name })),
         );
@@ -128,7 +140,6 @@ export default function AdminReviews() {
         <h1 className="text-2xl md:text-3xl font-bold text-zinc-800">
           Testimoni & Ulasan
         </h1>
-        <p className="text-zinc-500">{filtered.length} review</p>
       </div>
 
       <div className="flex gap-2 flex-wrap items-center">
@@ -228,35 +239,55 @@ export default function AdminReviews() {
                 <p className="text-[13px] text-zinc-600 leading-relaxed mt-2 line-clamp-3">
                   {r.review}
                 </p>
-                <div className="flex items-center justify-between gap-2">
-                  {r.is_featured === 1 ? (
-                    <span className="text-xs text-green-600 font-semibold">
-                      ✓ Homepage
-                    </span>
-                  ) : (
-                    <button
-                      onClick={async () => {
-                        await adminToggleReview(r.id, r.is_approved === 1, !(r.is_featured === 1));
-                        fetchReviews();
-                      }}
-                      className="text-xs text-amber-600 font-semibold hover:underline"
-                    >
-                      Tampilkan di Homepage
-                    </button>
-                  )}
-                </div>
                 <div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-zinc-50">
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
-                      r.is_approved
-                        ? "bg-green-100 text-green-700"
-                        : "bg-amber-100 text-amber-700"
-                    }`}
-                  >
-                    {r.is_approved ? "Disetujui" : "Pending"}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+                        r.is_approved
+                          ? "bg-green-100 text-green-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}
+                    >
+                      {r.is_approved ? "Disetujui" : "Pending"}
+                    </span>
+                  </div>
 
                   <div className="flex items-center gap-2">
+                    {r.is_approved === 1 && (
+                      <button
+                        onClick={async () => {
+                          if (
+                            r.is_featured !== 1 &&
+                            featuredCount >= FEATURED_LIMIT
+                          )
+                            return;
+                          try {
+                            const newFeatured = r.is_featured !== 1;
+                            await adminFeatureReview(r.id, newFeatured);
+                            fetchReviews();
+                            setSuccess(
+                              newFeatured
+                                ? "Review berhasil ditampilkan di homepage"
+                                : "Review berhasil disembunyikan dari homepage",
+                            );
+                          } catch (err: any) {
+                            setError(err.message);
+                          }
+                        }}
+                        disabled={
+                          r.is_featured !== 1 && featuredCount >= FEATURED_LIMIT
+                        }
+                        className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors ${
+                          r.is_featured !== 1 && featuredCount >= FEATURED_LIMIT
+                            ? "bg-zinc-300 text-zinc-500 cursor-not-allowed"
+                            : r.is_featured === 1
+                              ? "bg-green-600 text-white hover:bg-green-700"
+                              : "bg-amber-600 text-white hover:bg-amber-700"
+                        }`}
+                      >
+                        {r.is_featured === 1 ? "Ditampilkan" : "Tampilkan"}
+                      </button>
+                    )}
                     <button
                       onClick={() => handleToggle(r.id, r.is_approved)}
                       className={`flex items-center justify-center w-9 h-9 rounded-lg border transition-colors ${
@@ -306,7 +337,18 @@ export default function AdminReviews() {
                       Status
                     </th>
                     <th className="text-center px-4 py-3 font-semibold text-zinc-600">
-                      Homepage
+                      <span className="flex items-center justify-center gap-2">
+                        Homepage
+                        <span
+                          className={`inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full text-xs font-bold ${
+                            featuredCount >= FEATURED_LIMIT
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-green-100 text-green-700"
+                          }`}
+                        >
+                          {featuredCount}
+                        </span>
+                      </span>
                     </th>
                     <th className="text-right px-4 py-3 font-semibold text-zinc-600">
                       Aksi
@@ -354,18 +396,44 @@ export default function AdminReviews() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        {r.is_featured === 1 ? (
-                          <span className="text-xs text-green-600 font-semibold">✓</span>
-                        ) : (
+                        {r.is_approved === 1 ? (
                           <button
                             onClick={async () => {
-                              await adminToggleReview(r.id, r.is_approved === 1, true);
-                              fetchReviews();
+                              if (
+                                r.is_featured !== 1 &&
+                                featuredCount >= FEATURED_LIMIT
+                              )
+                                return;
+                              try {
+                                const newFeatured = r.is_featured !== 1;
+                                await adminFeatureReview(r.id, newFeatured);
+                                fetchReviews();
+                                setSuccess(
+                                  newFeatured
+                                    ? "Review berhasil ditampilkan di homepage"
+                                    : "Review berhasil disembunyikan dari homepage",
+                                );
+                              } catch (err: any) {
+                                setError(err.message);
+                              }
                             }}
-                            className="text-xs text-amber-600 font-semibold hover:underline"
+                            disabled={
+                              r.is_featured !== 1 &&
+                              featuredCount >= FEATURED_LIMIT
+                            }
+                            className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors ${
+                              r.is_featured !== 1 &&
+                              featuredCount >= FEATURED_LIMIT
+                                ? "bg-zinc-300 text-zinc-500 cursor-not-allowed"
+                                : r.is_featured === 1
+                                  ? "bg-green-600 text-white hover:bg-green-700"
+                                  : "bg-amber-600 text-white hover:bg-amber-700"
+                            }`}
                           >
-                            Tampilkan
+                            {r.is_featured === 1 ? "Ditampilkan" : "Tampilkan"}
                           </button>
+                        ) : (
+                          <span className="text-xs text-zinc-400">Pending</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -374,8 +442,8 @@ export default function AdminReviews() {
                             onClick={() => handleToggle(r.id, r.is_approved)}
                             className={`flex items-center justify-center w-8 h-8 rounded-lg border border-[#F5730C]/40 text-[#F5730C] hover:bg-[#FFF1E6] transition-colors ${
                               r.is_approved
-                                ? "border-red-200 text-red-500 hover:bg-red-50" // untuk menolak
-                                : "border-green-200 text-green-600 hover:bg-green-100" // untuk setujui
+                                ? "border-red-200 text-red-500 hover:bg-red-50"
+                                : "border-green-200 text-green-600 hover:bg-green-100"
                             }`}
                             title={r.is_approved ? "Tolak" : "Setujui"}
                           >
