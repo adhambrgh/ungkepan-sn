@@ -591,10 +591,6 @@ export async function customerGoogleLogin(credential: string) {
   })
 }
 
-export async function customerMe() {
-  return request<{ user: CustomerUser }>('/me.php', { headers: customerAuthHeaders() })
-}
-
 export async function updateProfile(data: { name: string; phone?: string; birthdate?: string; gender?: string }) {
   return request<{ success: boolean; user: CustomerUser }>('/profile.php', {
     method: 'PUT',
@@ -1025,17 +1021,6 @@ export type Promo = {
   min_order: number
   max_discount: number
   is_active: number
-}
-
-export async function getPromos(): Promise<Promo[]> {
-  if (await checkApi()) {
-    try {
-      return await request<Promo[]>('/promos.php')
-    } catch {
-      return []
-    }
-  }
-  return []
 }
 
 export async function adminGetPromos(): Promise<Promo[]> {
